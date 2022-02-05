@@ -5,8 +5,19 @@ project( Cimeji )
 set( SRC_FILES
   src/main.cpp
   src/app.cpp
-  src/linux/surface.cpp
 )
+
+if( MSVC )
+set( PLAT_FILES
+    src/win/render.cpp
+    src/win/render.h
+)
+else()
+set( PLAT_FILES
+    src/linux/render.cpp
+    src/linux/surface.cpp
+)
+endif()
 
 include( core.cmake )
 
@@ -25,7 +36,7 @@ find_package(
 	REQUIRED
 )
 
-add_executable( cimeji ${SRC_FILES} )
+add_executable( cimeji ${SRC_FILES} ${PLAT_FILES} )
 
 target_link_libraries(
 	cimeji

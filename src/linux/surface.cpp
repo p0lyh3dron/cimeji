@@ -1,11 +1,11 @@
 /*
- *	surface.h
+ *	surface.cpp
  *	
  *	Authored by p0lyh3dron on Februrary 5, 2022
  *
  *
- *	Declares the types and functions that will be
- *	used for rendering.  
+ *	Defines the types and functions that will be
+ *	used for surface presentation.  
  */
 #include "surface.h"
 

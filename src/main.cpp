@@ -6,19 +6,10 @@
 
 #include <spng.h>
 
-#include "linux/surface.h"
+#include "render.h"
 
 #include <cairo/cairo.h>
 #include <cairo/cairo-xlib.h>
-
-int x = 0;
-int y = 0;
-
-void draw( cairo_t *cr ) {
-	cairo_set_source_rgba( cr, 1.0, 0.0, 0.0, 0.5 );
-	cairo_rectangle( cr, x, y, 128, 128 );
-	cairo_fill( cr );
-}
 
 class Main : public QThread {
 	void run() override {
@@ -29,22 +20,22 @@ class Main : public QThread {
 
 		allow_input_passthrough( pSurface );
 
-		cairo_surface_t* surf = cairo_xlib_surface_create( 
-			pSurface->apDisplay, pSurface->aOverlayWin, 
-			pSurface->aVInfo.visual, pSurface->aWidth, 
-			pSurface->aHeight 
-		);
-		cairo_t* cr = cairo_create( surf );
+#ifdef __linux__
+			cairo_t *cr = shimeji_cairo_init( pSurface );
+#endif /* __linux__  */
 
 		for ( int i = 0; ; ++i ) {
-			x = 200 + 200 * sin( 2 + ( float )i * 0.01 );
-			y = 200 + 200 * cos( ( float )i * 0.02 );
-			draw( cr );
+			int x = 200 + 200 * sin( 2 + ( float )i * 0.01 );
+			int y = 200 + 200 * cos( ( float )i * 0.02 );
+#ifdef __linux__
+			draw_rectangle( cr, x, y, 128, 128 );
+#endif /* __linux__  */
 			shimeji_surface_clear( pSurface );
 		}
 
+#ifdef __linux__
 		cairo_destroy( cr );
-		cairo_surface_destroy( surf );
+#endif /* __linux__  */
 
 		shimeji_surface_free( pSurface );
 		return;

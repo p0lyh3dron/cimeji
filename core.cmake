@@ -33,7 +33,11 @@ endif()
 
 # Compiler/Platform specifc options
 if( MSVC )
-	
+
+	include_directories(
+		"src/win/"
+	)	
+
 	add_compile_definitions(
 		NOMINMAX
 		_CRT_SECURE_NO_WARNINGS
@@ -83,6 +87,7 @@ else()  # linux
 	
 	include_directories(
 		"/usr/include/cairo"
+		"src/linux/"
 	)
 	      
 	link_libraries( pthread X11 Xfixes Xcomposite cairo m spng )

@@ -5,7 +5,7 @@
  *
  *
  *	Declares the types and functions that will be
- *	used for rendering.  
+ *	used for surface presentation.  
  */
 #pragma once
 
