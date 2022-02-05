@@ -13,6 +13,26 @@
 #include <cairo/cairo-xlib.h>
 
 #include "surface.h"
+/*
+ *  Renders the surface.
+ *
+ *  @param  void *
+ *     The surface to render on.
+ *  @return void *
+ *     The thread's return value, which is unused.
+ */
+void *render_thread( void *spSurface );
+/*
+ *  Starts the renderer thread.
+ *
+ *  @param  shimeji_surface_t *
+ *      The surface to render on.
+ */
+void render_start( shimeji_surface_t *spSurface );
+
+
+
+
 /* 
  *  Initializes a cairo context.
  *

@@ -17,25 +17,9 @@ class Main : public QThread {
 		spng_ctx_free( ctx );
 		
 		shimeji_surface_t *pSurface = shimeji_surface_init();
+		render_start( pSurface );
 
-		allow_input_passthrough( pSurface );
-
-#ifdef __linux__
-			cairo_t *cr = shimeji_cairo_init( pSurface );
-#endif /* __linux__  */
-
-		for ( int i = 0; ; ++i ) {
-			int x = 200 + 200 * sin( 2 + ( float )i * 0.01 );
-			int y = 200 + 200 * cos( ( float )i * 0.02 );
-#ifdef __linux__
-			draw_rectangle( cr, x, y, 128, 128 );
-#endif /* __linux__  */
-			shimeji_surface_clear( pSurface );
-		}
-
-#ifdef __linux__
-		cairo_destroy( cr );
-#endif /* __linux__  */
+		while( 1 );
 
 		shimeji_surface_free( pSurface );
 		return;
