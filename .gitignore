@@ -1,0 +1,32 @@
+#ignore objects
+*.o
+*.so
+*.dylib
+*.a
+
+#build files
+build/
+obj/
+
+#windows build files
+*.exe
+*.dll
+*.obj
+*.lib
+*.ilk
+*.exp
+*.pch
+*.vcxproj
+*.vcxproj.*
+
+#vscode
+.vscode/
+
+#qpc generated files
+scripts/*.mak
+
+#ignore other files
+*~
+.emacs.*
+*.desktop
+*.bak
