@@ -12,7 +12,6 @@
 #include "util.h"
 
 #include <malloc.h>
-#include <dirent.h>
 #include <string.h>
 #include <spng.h>
 /*
@@ -30,8 +29,8 @@ shimeji_t *shimeji_init( const char *spPath ) {
         return NULL;
     }
     char **apFiles = scan_dir( spPath );
-    int i;
-    for ( i = 0; apFiles[ i ] != NULL; ++i ) {
+    int i, j;
+    for ( i = 0, j = 0; apFiles[ i ] != NULL; i++ ) {
         if( strstr( apFiles[ i ], ".png" ) ) {
             shimeji_data_t *pData = ( shimeji_data_t * )malloc( sizeof( shimeji_data_t ) );
             if( !pData ) {
@@ -78,7 +77,7 @@ shimeji_t *shimeji_init( const char *spPath ) {
                 fprintf( stderr, "Failed to allocate memory for shimeji data.\n" );
                 return NULL;
             }
-            pShimeji->apData[ i ] = pData;
+            pShimeji->apData[ j++ ] = pData;
         }
     }
     pShimeji->apData = ( shimeji_data_t ** )realloc( pShimeji->apData, ( i + 1 ) * sizeof( shimeji_data_t * ) );
