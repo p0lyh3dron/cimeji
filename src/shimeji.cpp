@@ -86,7 +86,7 @@ shimeji_t *shimeji_init( const char *spPath ) {
         return NULL;
     }
     pShimeji->apData[ i ] = NULL;
-    
+
     return pShimeji;
 }
 /*
