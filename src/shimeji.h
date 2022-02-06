@@ -29,6 +29,8 @@ typedef struct {
     shimeji_data_t **apData;
     u16              aPos[ 2 ];
     behavior_t       aBehavior;
+    u16              aWidth;
+    u16              aHeight;
 }shimeji_t;
 /*
  *  Initializes a shimeji.

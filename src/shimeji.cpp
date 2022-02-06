@@ -87,6 +87,10 @@ shimeji_t *shimeji_init( const char *spPath ) {
     }
     pShimeji->apData[ i ] = NULL;
 
+    /* Dumb.  */
+    pShimeji->aWidth  = pShimeji->apData[ 0 ]->aWidth;
+    pShimeji->aHeight = pShimeji->apData[ 0 ]->aHeight;
+
     return pShimeji;
 }
 /*

@@ -12,10 +12,10 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <math.h>
-static shimeji_t *gpShimejis [ SHIMEJI_MAX_COUNT ]  = { 0 };
-static XImage    *gpImages   [ SHIMEJI_MAX_COUNT ]  = { 0 };
+static shimeji_t **gpShimejis;
+static XImage     *gpImages   [ SHIMEJI_MAX_COUNT ]  = { 0 };
 
-static Pixmap     gPixmap = 0;
+static Pixmap      gPixmap = 0;
 /*
  *  Renders the surface.
  *
@@ -34,7 +34,6 @@ void *render_thread( void *spSurface ) {
                 render_draw( pSurface, gpShimejis[ i ] );
             }
         }
-        draw_rectangle( pCairo, 420, 420, 420, 420 );
     }
     return NULL;
 }
@@ -45,6 +44,7 @@ void *render_thread( void *spSurface ) {
  *      The surface to render on.
  */
 void render_start( shimeji_surface_t *spSurface ) {
+    gpShimejis = get_shimejis();
     allow_input_passthrough( spSurface );
     gPixmap = create_pixmap( spSurface );
 
@@ -130,7 +130,7 @@ void render_draw( shimeji_surface_t *spSurface, shimeji_t *spShimeji ) {
     );
     XCopyArea( 
         spSurface->apDisplay, gPixmap, spSurface->aOverlayWin,  spSurface->aGC, 0, 0, 
-        gpShimejis[ i ]->apData[ 0 ]->aWidth, gpShimejis[ i ]->apData[ 0 ]->aHeight, 0, 0 
+        spSurface->aWidth, spSurface->aHeight, 0, 0 
     );
 }
 

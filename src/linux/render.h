@@ -9,13 +9,11 @@
  */
 #pragma once
 
-#define SHIMEJI_MAX_COUNT 255
-
 #include <cairo/cairo.h>
 #include <cairo/cairo-xlib.h>
 
 #include "surface.h"
-#include "../shimeji.h"
+#include "../manager.h"
 /*
  *  Renders the surface.
  *

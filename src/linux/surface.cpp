@@ -45,7 +45,7 @@ shimeji_surface_t *shimeji_surface_init() {
     pSurface->aWinAttributes.border_pixel      = 0;
     pSurface->aOverlayWin                      = XCreateWindow(
         pSurface->apDisplay, pSurface->aRootWin,
-        1920, 0, pSurface->aWidth, pSurface->aHeight, 0,
+        0, 0, pSurface->aWidth, pSurface->aHeight, 0,
         pSurface->aVInfo.depth, InputOutput, 
         pSurface->aVInfo.visual,
         CWOverrideRedirect | CWColormap | CWBackPixel | CWBorderPixel,
