@@ -54,6 +54,8 @@ shimeji_surface_t *shimeji_surface_init() {
     );
     XMapWindow( pSurface->apDisplay, pSurface->aOverlayWin );
 
+    pSurface->aGC = XCreateGC( pSurface->apDisplay, pSurface->aOverlayWin, 0, 0 );
+
     return pSurface;
 }
 /* 

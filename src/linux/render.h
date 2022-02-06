@@ -9,10 +9,13 @@
  */
 #pragma once
 
+#define SHIMEJI_MAX_COUNT 255
+
 #include <cairo/cairo.h>
 #include <cairo/cairo-xlib.h>
 
 #include "surface.h"
+#include "../shimeji.h"
 /*
  *  Renders the surface.
  *
@@ -29,6 +32,51 @@ void *render_thread( void *spSurface );
  *      The surface to render on.
  */
 void render_start( shimeji_surface_t *spSurface );
+/*
+ *  Creates an XImage for the surface.
+ *
+ *  @param  shimeji_surface_t *
+ *     The surface to create an XImage for.
+ *  @param  shimeji_t *
+ *     The shimeji to create an XImage for.
+ *  @return XImage *
+ *     A valid XImage for the shimeji on success, nullptr on failure.
+ */
+XImage *create_ximage( shimeji_surface_t *spSurface, shimeji_t *spShimeji );
+/*
+ *  Creates a Pixmap for the surface.
+ *
+ *  @param  shimeji_surface_t *
+ *    The surface to create a Pixmap for.
+ *  @return Pixmap
+ *   A valid Pixmap for the surface on success, 0 on failure.
+ */
+Pixmap create_pixmap( shimeji_surface_t *spSurface );
+/*
+ *  Adds a shimeji to the render queue.
+ *
+ *  @param  shimeji_surface_t *
+ *     The surface to add to the render queue.
+ *  @param  shimeji_t *
+ *     The shimeji to add to the render queue.
+ */
+void render_add( shimeji_surface_t *spSurface, shimeji_t *spShimeji );
+/*
+ *  Removes a shimeji from the render queue.
+ *
+ *  @param  shimeji_t *
+ *     The shimeji to remove from the render queue.
+ */
+void render_remove( shimeji_t *spShimeji );
+/*
+ *  Draws a shimeji.
+ *
+ *  @param  shimeji_surface_t *
+ *     The surface to draw the shimeji on.
+ *  @param  shimeji_t *
+ *     The shimeji to draw.
+ */
+void render_draw( shimeji_surface_t *spSurface, shimeji_t *spShimeji );
 
 
 

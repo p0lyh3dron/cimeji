@@ -7,17 +7,18 @@
 #include <spng.h>
 
 #include "render.h"
+#include "shimeji.h"
 
 #include <cairo/cairo.h>
 #include <cairo/cairo-xlib.h>
 
 class Main : public QThread {
 	void run() override {
-		spng_ctx *ctx = spng_ctx_new( 0 );
-		spng_ctx_free( ctx );
-		
 		shimeji_surface_t *pSurface = shimeji_surface_init();
 		render_start( pSurface );
+
+		shimeji_t *pShimeji = shimeji_init( "/home/karl/Downloads/shimejiee/img/rai/" );
+		render_add( pSurface, pShimeji );
 
 		while( 1 );
 

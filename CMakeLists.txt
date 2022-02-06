@@ -5,6 +5,7 @@ project( Cimeji )
 set( SRC_FILES
   src/main.cpp
   src/app.cpp
+  src/shimeji.cpp
 )
 
 if( MSVC )
@@ -16,6 +17,7 @@ else()
 set( PLAT_FILES
     src/linux/render.cpp
     src/linux/surface.cpp
+    src/linux/util.cpp
 )
 endif()
 

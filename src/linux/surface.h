@@ -29,6 +29,7 @@ typedef struct {
     XSetWindowAttributes aWinAttributes;
     XVisualInfo          aVInfo;
     Window               aOverlayWin;
+    GC                   aGC;
 }shimeji_surface_t;
 /*
  *	Initializes the surface.
