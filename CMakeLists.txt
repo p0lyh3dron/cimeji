@@ -13,6 +13,8 @@ if( MSVC )
 set( PLAT_FILES
     src/win/render.cpp
     src/win/render.h
+		src/win/util.cpp
+		src/win/util.h
 )
 else()
 set( PLAT_FILES
@@ -53,4 +55,11 @@ target_link_libraries(
 if( MSVC )
 	include( qt6.cmake )
 	windeployqt( cimeji )
+	
+	qt6_disable_unicode_defines( cimeji )
+	
+	# copy spng dll
+	add_custom_command( TARGET cimeji POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SPNG_LIB_DIR}/spng.dll $<TARGET_FILE_DIR:cimeji>
+	)
 endif()

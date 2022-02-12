@@ -34,9 +34,20 @@ endif()
 # Compiler/Platform specifc options
 if( MSVC )
 
+	if ( CMAKE_BUILD_TYPE STREQUAL Debug )
+		set( SPNG_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/thirdparty/libspng/build/Debug )
+	else()
+		set( SPNG_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/thirdparty/libspng/build/Release )
+	endif()
+
 	include_directories(
 		"src/win/"
-	)	
+		"thirdparty/libspng/spng"
+	)
+	
+	link_directories( ${SPNG_LIB_DIR} )
+	
+	link_libraries( spng )
 
 	add_compile_definitions(
 		NOMINMAX
@@ -60,6 +71,7 @@ if( MSVC )
 	set_property( GLOBAL PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL" )
 
 	set( MSVC_VERSION 1939 )
+	set( CMAKE_MFC_FLAG 0 )
 
 	add_compile_options(
 		"/W3"               # Warning Level 3
@@ -90,7 +102,7 @@ else()  # linux
 		"src/linux/"
 	)
 	      
-	link_libraries( pthread X11 Xfixes Xcomposite cairo m spng )
+	link_libraries( pthread X11 Xfixes Xcomposite cairo m )
 	
 	if ( CMAKE_BUILD_TYPE STREQUAL Debug )
 		add_compile_options( -g )
