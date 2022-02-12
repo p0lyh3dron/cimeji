@@ -25,7 +25,6 @@ typedef struct {
 
 	Display             *apDisplay;
 	Window               aRootWin;
-    int                  aDefaultScreen;
     XSetWindowAttributes aWinAttributes;
     XVisualInfo          aVInfo;
     Window               aOverlayWin;

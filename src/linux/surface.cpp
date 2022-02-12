@@ -31,10 +31,9 @@ shimeji_surface_t *shimeji_surface_init() {
         return 0;
     }
     pSurface->aRootWin                         = DefaultRootWindow( pSurface->apDisplay );
-    pSurface->aDefaultScreen                   = XDefaultScreen( pSurface->apDisplay );
     pSurface->aWinAttributes.override_redirect = 1;
 
-    if ( !XMatchVisualInfo( pSurface->apDisplay, pSurface->aDefaultScreen, 32, TrueColor, &pSurface->aVInfo ) ) {
+    if ( !XMatchVisualInfo( pSurface->apDisplay, DefaultScreen( pSurface->apDisplay ), 32, TrueColor, &pSurface->aVInfo ) ) {
         fprintf( stderr, "Could not find a 32-bit TrueColor visual.\n" );
         XCloseDisplay( pSurface->apDisplay );
         free( pSurface );
@@ -46,7 +45,7 @@ shimeji_surface_t *shimeji_surface_init() {
     pSurface->aWinAttributes.border_pixel      = 0;
     pSurface->aOverlayWin                      = XCreateWindow(
         pSurface->apDisplay, pSurface->aRootWin,
-        1920, 0, pSurface->aWidth, pSurface->aHeight, 0,
+        0, 0, pSurface->aWidth, pSurface->aHeight, 0,
         pSurface->aVInfo.depth, InputOutput, 
         pSurface->aVInfo.visual,
         CWOverrideRedirect | CWColormap | CWBackPixel | CWBorderPixel,
@@ -76,9 +75,10 @@ void shimeji_surface_free( shimeji_surface_t *spSurface ) {
  *    The surface to clear.
  */
 void shimeji_surface_clear( shimeji_surface_t *spSurface ) {
+    XSync( spSurface->apDisplay, 1 );
     XFlush( spSurface->apDisplay );
     XClearWindow( spSurface->apDisplay, spSurface->aOverlayWin );
-    usleep( 5000 );
+    usleep( 50000 );
 }
 /*
  *  Allows input passthrough for the window.

@@ -6,6 +6,7 @@ set( SRC_FILES
   src/main.cpp
   src/app.cpp
   src/shimeji.cpp
+  src/manager.cpp
 )
 
 if( MSVC )
@@ -18,6 +19,7 @@ set( PLAT_FILES
     src/linux/render.cpp
     src/linux/surface.cpp
     src/linux/util.cpp
+    src/linux/input.cpp
 )
 endif()
 

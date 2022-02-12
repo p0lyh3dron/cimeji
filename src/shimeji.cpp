@@ -85,8 +85,13 @@ shimeji_t *shimeji_init( const char *spPath ) {
         fprintf( stderr, "Failed to allocate memory for shimeji data.\n" );
         return NULL;
     }
+	
     pShimeji->apData[ i-1 ] = NULL;
-    
+
+    /* Dumb.  */
+    pShimeji->aWidth  = pShimeji->apData[ 0 ]->aWidth;
+    pShimeji->aHeight = pShimeji->apData[ 0 ]->aHeight;
+
     return pShimeji;
 }
 /*

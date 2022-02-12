@@ -12,10 +12,10 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <math.h>
-static shimeji_t *gpShimejis [ SHIMEJI_MAX_COUNT ]  = { 0 };
-static XImage    *gpImages   [ SHIMEJI_MAX_COUNT ]  = { 0 };
+static shimeji_t **gpShimejis;
+static XImage     *gpImages   [ SHIMEJI_MAX_COUNT ]  = { 0 };
 
-static Pixmap     gPixmap = 0;
+static Pixmap      gPixmap = 0;
 /*
  *  Renders the surface.
  *
@@ -34,7 +34,6 @@ void *render_thread( void *spSurface ) {
                 render_draw( pSurface, gpShimejis[ i ] );
             }
         }
-        draw_rectangle( pCairo, 420, 420, 420, 420 );
     }
     return NULL;
 }
@@ -45,6 +44,7 @@ void *render_thread( void *spSurface ) {
  *      The surface to render on.
  */
 void render_start( shimeji_surface_t *spSurface ) {
+    gpShimejis = get_shimejis();
     allow_input_passthrough( spSurface );
     gPixmap = create_pixmap( spSurface );
 
@@ -63,12 +63,10 @@ void render_start( shimeji_surface_t *spSurface ) {
  */
 XImage *create_ximage( shimeji_surface_t *spSurface, shimeji_t *spShimeji ) {
     return XCreateImage( spSurface->apDisplay,
-                         DefaultVisual( spSurface->apDisplay,
-                                        DefaultScreen( spSurface->apDisplay ) ),
-                         DefaultDepth( spSurface->apDisplay,
-                                       DefaultScreen( spSurface->apDisplay ) ),
+                         spSurface->aVInfo.visual,
+                         spSurface->aVInfo.depth,
                          ZPixmap, 0, ( char* )spShimeji->apData[ 0 ]->apBuf,
-                         spSurface->aWidth, spSurface->aHeight, 32, 0 );
+                         spShimeji->apData[ 0 ]->aWidth, spShimeji->apData[ 0 ]->aHeight, 32, 0 );
 }
 /*
  *  Creates a Pixmap for the surface.
@@ -79,7 +77,7 @@ XImage *create_ximage( shimeji_surface_t *spSurface, shimeji_t *spShimeji ) {
  *   A valid Pixmap for the surface on success, 0 on failure.
  */
 Pixmap create_pixmap( shimeji_surface_t *spSurface ) {
-    return XCreatePixmap( spSurface->apDisplay, spSurface->aOverlayWin, spSurface->aWidth, spSurface->aHeight, DefaultDepth( spSurface->apDisplay, DefaultScreen( spSurface->apDisplay ) ) );
+    return XCreatePixmap( spSurface->apDisplay, spSurface->aOverlayWin, spSurface->aWidth, spSurface->aHeight, spSurface->aVInfo.depth );
 }
 /*
  *  Adds a shimeji to the render queue.
@@ -125,8 +123,15 @@ void render_draw( shimeji_surface_t *spSurface, shimeji_t *spShimeji ) {
     while( gpShimejis[ i ] != spShimeji ) {
         ++i;
     }
-    XPutImage( spSurface->apDisplay, gPixmap, spSurface->aGC, gpImages[ i ], 0, 0, 0, 0, gpShimejis[ i ]->apData[ 0 ]->aWidth, gpShimejis[ i ]->apData[ 0 ]->aHeight );
-    XCopyArea( spSurface->apDisplay, gPixmap, spSurface->aOverlayWin, spSurface->aGC, 0, 0, gpShimejis[ i ]->apData[ 0 ]->aWidth, gpShimejis[ i ]->apData[ 0 ]->aHeight, 0, 0 );
+    XPutImage( 
+        spSurface->apDisplay, gPixmap, spSurface->aGC, gpImages[ i ], 0, 0, 
+        gpShimejis[ i ]->aPos[ 0 ], gpShimejis[ i ]->aPos[ 1 ], 
+        gpShimejis[ i ]->apData[ 0 ]->aWidth, gpShimejis[ i ]->apData[ 0 ]->aHeight 
+    );
+    XCopyArea( 
+        spSurface->apDisplay, gPixmap, spSurface->aOverlayWin,  spSurface->aGC, 0, 0, 
+        spSurface->aWidth, spSurface->aHeight, 0, 0 
+    );
 }
 
 
