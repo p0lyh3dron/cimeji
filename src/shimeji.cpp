@@ -80,12 +80,12 @@ shimeji_t *shimeji_init( const char *spPath ) {
             pShimeji->apData[ j++ ] = pData;
         }
     }
-    pShimeji->apData = ( shimeji_data_t ** )realloc( pShimeji->apData, ( i + 1 ) * sizeof( shimeji_data_t * ) );
+    pShimeji->apData = ( shimeji_data_t ** )realloc( pShimeji->apData, ( i ) * sizeof( shimeji_data_t * ) );
     if( !pShimeji->apData ) {
         fprintf( stderr, "Failed to allocate memory for shimeji data.\n" );
         return NULL;
     }
-    pShimeji->apData[ i ] = NULL;
+    pShimeji->apData[ i-1 ] = NULL;
     
     return pShimeji;
 }

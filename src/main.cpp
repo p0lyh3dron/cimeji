@@ -9,18 +9,26 @@
 #include "render.h"
 #include "shimeji.h"
 
-#include <cairo/cairo.h>
-#include <cairo/cairo-xlib.h>
+#ifdef _WIN32
+	#define TEST_SHIMEJI "C:\\UserPrograms\\shimejiee\\img\\rai"
+#else
+	#define TEST_SHIMEJI "/home/karl/Downloads/shimejiee/img/rai/"
+#endif
 
 class Main : public QThread {
 	void run() override {
 		shimeji_surface_t *pSurface = shimeji_surface_init();
 		render_start( pSurface );
 
-		shimeji_t *pShimeji = shimeji_init( "/home/karl/Downloads/shimejiee/img/rai/" );
+		shimeji_t *pShimeji = shimeji_init( TEST_SHIMEJI );
 		render_add( pSurface, pShimeji );
 
-		while( 1 );
+		while ( 1 )
+		{
+#ifdef _WIN32
+			sleep( 50 );
+#endif
+		}
 
 		shimeji_surface_free( pSurface );
 		return;
@@ -33,7 +41,7 @@ int main( int argc, char* argv[] )
     app.setDesktopSettingsAware( true );
 
     gPanel = new ControlPanel;
-    gPanel->resize( 200, 800 );
+    gPanel->resize( 120, 300 );
     gPanel->show();
 
 	Main *pThread = new Main;
