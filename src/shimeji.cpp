@@ -14,7 +14,6 @@
 #include <malloc.h>
 #include <string.h>
 #include <spng.h>
-#include <math.h>
 /*
  *  Initializes a shimeji.
  *
@@ -93,8 +92,6 @@ shimeji_t *shimeji_init( const char *spPath ) {
             pShimeji->aWidth  = 128;
             pShimeji->aHeight = 128;
 
-            printf( "Loaded shimeji with width %d and height %d\n", pShimeji->aWidth, pShimeji->aHeight );
-
             pShimeji->apData = ( shimeji_data_t ** )realloc( pShimeji->apData, ( i + 1 ) * sizeof( shimeji_data_t * ) );
             if( !pShimeji->apData ) {
                 fprintf( stderr, "Failed to allocate memory for shimeji data.\n" );
@@ -108,6 +105,11 @@ shimeji_t *shimeji_init( const char *spPath ) {
         fprintf( stderr, "Failed to allocate memory for shimeji data.\n" );
         return NULL;
     }
+
+    pShimeji->aPos[ 0 ] = 3000;
+    pShimeji->aPos[ 1 ] = 900;
+
+    pShimeji->aCurrentFrame = 0;
 	
     pShimeji->apData[ i - 1 ] = NULL;
 

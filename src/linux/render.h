@@ -31,16 +31,22 @@ void *render_thread( void *spSurface );
  */
 void render_start( shimeji_surface_t *spSurface );
 /*
+ *  Clears the render resources.
+*/
+void render_clear( void );
+/*
  *  Creates an XImage for the surface.
  *
  *  @param  shimeji_surface_t *
  *     The surface to create an XImage for.
  *  @param  shimeji_t *
  *     The shimeji to create an XImage for.
+ *  @param  int
+ *     The index of the shimeji frame.
  *  @return XImage *
  *     A valid XImage for the shimeji on success, nullptr on failure.
  */
-XImage *create_ximage( shimeji_surface_t *spSurface, shimeji_t *spShimeji );
+XImage *create_ximage( shimeji_surface_t *spSurface, shimeji_t *spShimeji, int i );
 /*
  *  Creates a Pixmap for the surface.
  *

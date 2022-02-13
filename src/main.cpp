@@ -33,6 +33,7 @@ class Main : public QThread {
 		}
 		
 		close_input();
+		render_clear();
 		shimeji_surface_free( pSurface );
 		return;
 	}
