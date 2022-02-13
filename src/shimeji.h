@@ -18,11 +18,7 @@ typedef enum {
 }behavior_t;
 
 typedef struct {
-    u32 aDataSize;
     u8 *apBuf;
-    u16 aWidth;
-    u16 aHeight;
-    u32 aFormat;
 }shimeji_data_t;
 
 typedef struct {

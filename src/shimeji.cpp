@@ -14,6 +14,7 @@
 #include <malloc.h>
 #include <string.h>
 #include <spng.h>
+#include <math.h>
 /*
  *  Initializes a shimeji.
  *
@@ -37,11 +38,7 @@ shimeji_t *shimeji_init( const char *spPath ) {
                 fprintf( stderr, "Failed to allocate memory for shimeji data.\n" );
                 return NULL;            
             }
-            pData->aDataSize = 0;
             pData->apBuf     = NULL;
-            pData->aWidth    = 0;
-            pData->aHeight   = 0;
-            pData->aFormat   = 0;
 
             FILE *pFile = fopen( apFiles[ i ], "rb" );
             if( !pFile ) {
@@ -56,21 +53,47 @@ shimeji_t *shimeji_init( const char *spPath ) {
             }
 
             struct spng_ihdr ihdr;
+            u32              len;
 
             spng_set_png_file( pPng, pFile );
             spng_get_ihdr( pPng, &ihdr );
-            spng_decoded_image_size( pPng, SPNG_FMT_RGBA8, ( size_t* )&pData->aDataSize );
-            pData->apBuf = ( u8 * )malloc( pData->aDataSize );
+            spng_decoded_image_size( pPng, SPNG_FMT_RGBA8, ( size_t* )&len );
+#ifdef __unix__
+            u8 *pBuf = ( u8 * )malloc( len );
+#endif /* __unix__  */
+            pData->apBuf = ( u8 * )malloc( len );
             if( !pData->apBuf ) {
                 fprintf( stderr, "Failed to allocate memory for shimeji data buffer.\n" );
                 return NULL;
             }
-            spng_decode_image( pPng, pData->apBuf, pData->aDataSize, SPNG_FMT_RGBA8, 0 );
+#ifdef __unix__
+            spng_decode_image( pPng, pBuf, len, SPNG_FMT_RGBA8, 0 );
+#else
+            spng_decode_image( pPng, pData->apBuf, len, SPNG_FMT_RGBA8, 0 );
+#endif /* __unix__  */
             spng_ctx_free( pPng );
+#ifdef __unix__
+            /* RGBA to BGRA  */
+            for ( int i = 0; i < len; i++ ) {
+                if ( i % 4 == 0 ) {
+                    pData->apBuf[ i + 2 ] = pBuf[ i ];
+                }
+                else if ( i % 4 == 2 ) {
+                    pData->apBuf[ i - 2 ] = pBuf[ i ];
+                }
+                else {
+                    pData->apBuf[ i ]     = pBuf[ i ];
+                }
+            }
 
-            pData->aWidth  = ihdr.width;
-            pData->aHeight = ihdr.height;
-            pData->aFormat = SPNG_FMT_RGBA8;
+            free( pBuf );
+#endif /* __unix__  */
+
+            /* ???  */
+            pShimeji->aWidth  = 128;
+            pShimeji->aHeight = 128;
+
+            printf( "Loaded shimeji with width %d and height %d\n", pShimeji->aWidth, pShimeji->aHeight );
 
             pShimeji->apData = ( shimeji_data_t ** )realloc( pShimeji->apData, ( i + 1 ) * sizeof( shimeji_data_t * ) );
             if( !pShimeji->apData ) {
@@ -86,11 +109,7 @@ shimeji_t *shimeji_init( const char *spPath ) {
         return NULL;
     }
 	
-    pShimeji->apData[ i-1 ] = NULL;
-
-    /* Dumb.  */
-    pShimeji->aWidth  = pShimeji->apData[ 0 ]->aWidth;
-    pShimeji->aHeight = pShimeji->apData[ 0 ]->aHeight;
+    pShimeji->apData[ i - 1 ] = NULL;
 
     return pShimeji;
 }

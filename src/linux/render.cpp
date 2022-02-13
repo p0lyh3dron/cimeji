@@ -12,6 +12,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <math.h>
+#include <stdio.h>
 static shimeji_t **gpShimejis;
 static XImage     *gpImages   [ SHIMEJI_MAX_COUNT ]  = { 0 };
 
@@ -62,11 +63,14 @@ void render_start( shimeji_surface_t *spSurface ) {
  *     A valid XImage for the shimeji on success, nullptr on failure.
  */
 XImage *create_ximage( shimeji_surface_t *spSurface, shimeji_t *spShimeji ) {
+    printf( 
+        "depth = %d\n", spSurface->aVInfo.depth
+     );
     return XCreateImage( spSurface->apDisplay,
                          spSurface->aVInfo.visual,
                          spSurface->aVInfo.depth,
                          ZPixmap, 0, ( char* )spShimeji->apData[ 0 ]->apBuf,
-                         spShimeji->apData[ 0 ]->aWidth, spShimeji->apData[ 0 ]->aHeight, 32, 0 );
+                         spShimeji->aWidth, spShimeji->aHeight, 32, 0 );
 }
 /*
  *  Creates a Pixmap for the surface.
@@ -126,11 +130,16 @@ void render_draw( shimeji_surface_t *spSurface, shimeji_t *spShimeji ) {
     XPutImage( 
         spSurface->apDisplay, gPixmap, spSurface->aGC, gpImages[ i ], 0, 0, 
         gpShimejis[ i ]->aPos[ 0 ], gpShimejis[ i ]->aPos[ 1 ], 
-        gpShimejis[ i ]->apData[ 0 ]->aWidth, gpShimejis[ i ]->apData[ 0 ]->aHeight 
+        gpShimejis[ i ]->aWidth, gpShimejis[ i ]->aHeight 
     );
     XCopyArea( 
         spSurface->apDisplay, gPixmap, spSurface->aOverlayWin,  spSurface->aGC, 0, 0, 
         spSurface->aWidth, spSurface->aHeight, 0, 0 
+    );
+    XFillRectangle( 
+        spSurface->apDisplay, gPixmap, spSurface->aGC, 
+        gpShimejis[ i ]->aPos[ 0 ], gpShimejis[ i ]->aPos[ 1 ], 
+        gpShimejis[ i ]->aWidth, gpShimejis[ i ]->aHeight 
     );
 }
 

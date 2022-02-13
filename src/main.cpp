@@ -13,7 +13,7 @@
 #ifdef _WIN32
 	#define TEST_SHIMEJI "C:\\UserPrograms\\shimejiee\\img\\rai"
 #else
-	#define TEST_SHIMEJI "/home/karl/Downloads/shimejiee/img/rai/"
+	#define TEST_SHIMEJI "/home/karl/Downloads/Eliwood by Eeveetachi/img/"
 #endif
 
 class Main : public QThread {
