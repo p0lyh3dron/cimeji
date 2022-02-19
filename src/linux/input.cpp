@@ -30,7 +30,7 @@
 
 Display   *gpDisplay;
 u32        gInputFlags;
-shimeji_t *gpGrabbedShimeji;
+avatar_t *gpGrabbedShimeji;
 
 int gMouseX;
 int gMouseY;
@@ -82,7 +82,7 @@ void *input_thread( void *spArgs ) {
     while( 1 ) {
         get_mouse_click();
         if ( gInputFlags & I_LMB ) {
-            shimeji_t *pShimeji = get_shimeji_at_mouse();
+            avatar_t *pShimeji = get_shimeji_at_mouse();
             if ( pShimeji ) {
                 gpGrabbedShimeji = pShimeji;
             }
@@ -122,15 +122,15 @@ void init_input( void ) {
  *      The x coordinate.
  *  @param  int
  *      The y coordinate.
- *  @return shimeji_t *
+ *  @return avatar_t *
  *      The shimeji at the given coordinates, or nullptr if there is no shimeji.
  */
-shimeji_t *get_shimeji( int x, int y ) {
+avatar_t *get_shimeji( int x, int y ) {
     for ( int i = 0; i < SHIMEJI_MAX_COUNT; ++i ) {
-        if ( get_shimejis()[ i ] ) {
-            if ( x >= get_shimejis()[ i ]->aPos[ 0 ] && x <= get_shimejis()[ i ]->aPos[ 0 ] + get_shimejis()[ i ]->aWidth &&
-                 y >= get_shimejis()[ i ]->aPos[ 1 ] && y <= get_shimejis()[ i ]->aPos[ 1 ] + get_shimejis()[ i ]->aHeight ) {
-                return get_shimejis()[ i ];
+        if ( get_avatars()[ i ] ) {
+            if ( x >= get_avatars()[ i ]->aPos[ 0 ] && x <= get_avatars()[ i ]->aPos[ 0 ] + get_avatars()[ i ]->aWidth &&
+                 y >= get_avatars()[ i ]->aPos[ 1 ] && y <= get_avatars()[ i ]->aPos[ 1 ] + get_avatars()[ i ]->aHeight ) {
+                return get_avatars()[ i ];
             }
         }
     }
@@ -153,10 +153,10 @@ void get_mouse_pos( int *x, int *y ) {
 /*
  *  Returns the shimeji at the mouse's current position.
  *
- *  @return shimeji_t *
+ *  @return avatar_t *
  *     The shimeji at the mouse's current position, or nullptr if there is no shimeji.
  */
-shimeji_t *get_shimeji_at_mouse( void ) {
+avatar_t *get_shimeji_at_mouse( void ) {
     int x, y;
     get_mouse_pos( &x, &y );
     return get_shimeji( x, y );

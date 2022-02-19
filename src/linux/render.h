@@ -35,12 +35,12 @@ void render_start( shimeji_surface_t *spSurface );
  *
  *  @param  shimeji_surface_t *
  *     The surface to create an XImage for.
- *  @param  shimeji_t *
+ *  @param  avatar_t *
  *     The shimeji to create an XImage for.
  *  @return XImage *
  *     A valid XImage for the shimeji on success, nullptr on failure.
  */
-XImage *create_ximage( shimeji_surface_t *spSurface, shimeji_t *spShimeji );
+XImage *create_ximage( shimeji_surface_t *spSurface, avatar_t *spShimeji );
 /*
  *  Creates a Pixmap for the surface.
  *
@@ -55,26 +55,26 @@ Pixmap create_pixmap( shimeji_surface_t *spSurface );
  *
  *  @param  shimeji_surface_t *
  *     The surface to add to the render queue.
- *  @param  shimeji_t *
+ *  @param  avatar_t *
  *     The shimeji to add to the render queue.
  */
-void render_add( shimeji_surface_t *spSurface, shimeji_t *spShimeji );
+void render_add( shimeji_surface_t *spSurface, avatar_t *spShimeji );
 /*
  *  Removes a shimeji from the render queue.
  *
- *  @param  shimeji_t *
+ *  @param  avatar_t *
  *     The shimeji to remove from the render queue.
  */
-void render_remove( shimeji_t *spShimeji );
+void render_remove( avatar_t *spShimeji );
 /*
  *  Draws a shimeji.
  *
  *  @param  shimeji_surface_t *
  *     The surface to draw the shimeji on.
- *  @param  shimeji_t *
+ *  @param  avatar_t *
  *     The shimeji to draw.
  */
-void render_draw( shimeji_surface_t *spSurface, shimeji_t *spShimeji );
+void render_draw( shimeji_surface_t *spSurface, avatar_t *spShimeji );
 
 
 

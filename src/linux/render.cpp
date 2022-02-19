@@ -12,7 +12,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <math.h>
-static shimeji_t **gpShimejis;
+static avatar_t **gpAvatars;
 static XImage     *gpImages   [ SHIMEJI_MAX_COUNT ]  = { 0 };
 
 static Pixmap      gPixmap = 0;
@@ -30,8 +30,8 @@ void *render_thread( void *spSurface ) {
     while( 1 ) {
         shimeji_surface_clear( pSurface );
         for ( int i = 0; i < SHIMEJI_MAX_COUNT; ++i ) {
-            if ( gpShimejis[ i ] ) {
-                render_draw( pSurface, gpShimejis[ i ] );
+            if ( gpAvatars[ i ] ) {
+                render_draw( pSurface, gpAvatars[ i ] );
             }
         }
     }
@@ -44,7 +44,7 @@ void *render_thread( void *spSurface ) {
  *      The surface to render on.
  */
 void render_start( shimeji_surface_t *spSurface ) {
-    gpShimejis = get_shimejis();
+    gpAvatars = get_avatars();
     allow_input_passthrough( spSurface );
     gPixmap = create_pixmap( spSurface );
 
@@ -56,12 +56,12 @@ void render_start( shimeji_surface_t *spSurface ) {
  *
  *  @param  shimeji_surface_t *
  *     The surface to create an XImage for.
- *  @param  shimeji_t *
+ *  @param  avatar_t *
  *     The shimeji to create an XImage for.
  *  @return XImage *
  *     A valid XImage for the shimeji on success, nullptr on failure.
  */
-XImage *create_ximage( shimeji_surface_t *spSurface, shimeji_t *spShimeji ) {
+XImage *create_ximage( shimeji_surface_t *spSurface, avatar_t *spShimeji ) {
     return XCreateImage( spSurface->apDisplay,
                          spSurface->aVInfo.visual,
                          spSurface->aVInfo.depth,
@@ -84,30 +84,30 @@ Pixmap create_pixmap( shimeji_surface_t *spSurface ) {
  *
  *  @param  shimeji_surface_t *
  *     The surface to add to the render queue.
- *  @param  shimeji_t *
+ *  @param  avatar_t *
  *     The shimeji to add to the render queue.
  */
-void render_add( shimeji_surface_t *spSurface, shimeji_t *spShimeji ) {
+void render_add( shimeji_surface_t *spSurface, avatar_t *spShimeji ) {
     int i = 0;
-    while( gpShimejis[ i ] != 0 ) {
+    while( gpAvatars[ i ] != 0 ) {
         ++i;
     }
-    gpShimejis[ i ] = spShimeji;
-    gpImages[ i ]   = create_ximage( spSurface, gpShimejis[ i ] );
+    gpAvatars[ i ] = spShimeji;
+    gpImages[ i ]   = create_ximage( spSurface, gpAvatars[ i ] );
 }
 /*
  *  Removes a shimeji from the render queue.
  *
- *  @param  shimeji_t *
+ *  @param  avatar_t *
  *     The shimeji to remove from the render queue.
  */
-void render_remove( shimeji_t *spShimeji ) {
+void render_remove( avatar_t *spShimeji ) {
     int i = 0;
-    while( gpShimejis[ i ] != spShimeji ) {
+    while( gpAvatars[ i ] != spShimeji ) {
         ++i;
     }
-    shimeji_free( gpShimejis[ i ] );    
-    gpShimejis[ i ] = 0;
+    shimeji_free( gpAvatars[ i ] );    
+    gpAvatars[ i ] = 0;
     XDestroyImage( gpImages[ i ] );
 }
 /*
@@ -115,18 +115,18 @@ void render_remove( shimeji_t *spShimeji ) {
  *
  *  @param  shimeji_surface_t *
  *     The surface to draw the shimeji on.
- *  @param  shimeji_t *
+ *  @param  avatar_t *
  *     The shimeji to draw.
  */
-void render_draw( shimeji_surface_t *spSurface, shimeji_t *spShimeji ) {
+void render_draw( shimeji_surface_t *spSurface, avatar_t *spShimeji ) {
     int i = 0;
-    while( gpShimejis[ i ] != spShimeji ) {
+    while( gpAvatars[ i ] != spShimeji ) {
         ++i;
     }
     XPutImage( 
         spSurface->apDisplay, gPixmap, spSurface->aGC, gpImages[ i ], 0, 0, 
-        gpShimejis[ i ]->aPos[ 0 ], gpShimejis[ i ]->aPos[ 1 ], 
-        gpShimejis[ i ]->apData[ 0 ]->aWidth, gpShimejis[ i ]->apData[ 0 ]->aHeight 
+        gpAvatars[ i ]->aPos[ 0 ], gpAvatars[ i ]->aPos[ 1 ], 
+        gpAvatars[ i ]->apData[ 0 ]->aWidth, gpAvatars[ i ]->apData[ 0 ]->aHeight 
     );
     XCopyArea( 
         spSurface->apDisplay, gPixmap, spSurface->aOverlayWin,  spSurface->aGC, 0, 0, 

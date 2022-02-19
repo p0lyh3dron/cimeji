@@ -11,13 +11,19 @@
 
 #include "manager.h"
 
-static shimeji_t *gpShimejis[ SHIMEJI_MAX_COUNT ];
+#include <vector>
+
+std::vector< avatar_t* > gAvatars;
 /*
  *  Returns the list of shimejis.
  *
- *  @return shimeji_t **
+ *  @return avatar_t **
  *    An array of size SHIMEJI_MAX_COUNT containing the loaded shimejis.
  */
-shimeji_t **get_shimejis( void ) {
-    return gpShimejis;
+std::vector< avatar_t* > get_avatars( void )
+{
+    return gAvatars;
 }
+
+
+

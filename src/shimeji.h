@@ -9,55 +9,65 @@
  */
 #pragma once
 
+#include <string>
+#include <vector>
+
 typedef unsigned int   u32;
 typedef unsigned short u16;
 typedef unsigned char  u8;
 
-typedef enum {
-    StandUp = 0,
-}behavior_t;
+#ifdef _WIN32
+constexpr char PATH_SEP = '\\';
+#else
+constexpr char PATH_SEP = '/';
+#endif
 
-typedef struct {
+// typedef void (*think_func)( float sDT );
+
+struct shimeji_data_t
+{
     u32 aDataSize;
     u8 *apBuf;
     u16 aWidth;
     u16 aHeight;
     u32 aFormat;
-}shimeji_data_t;
+    std::string aPath;
+};
 
-typedef struct {
-    shimeji_data_t **apData;
-    u16              aPos[ 2 ];
-    behavior_t       aBehavior;
-    u16              aWidth;
-    u16              aHeight;
-}shimeji_t;
+struct behavior_t;
+
+struct avatar_t
+{
+    std::vector< shimeji_data_t* > aData;
+    std::string      aPath;  // path to data folder
+    int              aPos[ 2 ] = {0, 0};
+    behavior_t*      apBehavior = nullptr;
+    u16              aWidth = 0;
+    u16              aHeight = 0;
+    u16              aFrame = 0;
+    bool             aGrabbed = false;
+};
 /*
  *  Initializes a shimeji.
  *
  *  @param  const char *
  *      The path to the shimeji.
- *  @return	shimeji_t *
- *      Valid pointer to shimeji_t on success, nullptr on failure.
+ *  @return	avatar_t *
+ *      Valid pointer to avatar_t on success, nullptr on failure.
  */
-shimeji_t *shimeji_init( const char *spPath );
+avatar_t *avatar_create( const char *spPath );
 /*
  *  Frees a shimeji.
  *
- *  @param  shimeji_t *
+ *  @param  avatar_t *
  *      The shimeji to free.
  */
-void shimeji_free( shimeji_t *spShimeji );
-/*
- *  Updates the shimeji's values.
- *
- *  @param  shimeji_t *
- *      The shimeji to update.
- *  @param  u16
- *      The new x position.
- *  @param  u16
- *      The new y position.
- *  @param  behavior_t
- *      The new behavior.
- */
-void shimeji_set( shimeji_t *spShimeji, u16 sX, u16 sY, behavior_t sBehavior );
+void shimeji_free( avatar_t *spShimeji );
+
+void avatar_set_image( avatar_t* spAvatar, u16 sFrame );
+void avatar_set_image( avatar_t* spAvatar, const std::string& srPath );
+
+void avatar_set_pos( avatar_t* spAvatar, u16 sX, u16 sY );
+void avatar_set_ang( avatar_t* spAvatar, u16 sAng );
+void avatar_set_scale( avatar_t* spAvatar, char sScaleX, char sScaleY );
+

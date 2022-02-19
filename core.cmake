@@ -1,11 +1,11 @@
 # grab the framework global vars
-set( CMAKE_POSITION_INDEPENDENT_CODE ON )
+# set( CMAKE_POSITION_INDEPENDENT_CODE ON )
 
 set( CMAKE_CXX_STANDARD 20 )  # could do 23
 
-set( CIMEJI_BUILD      "./cimeji/" )
-set( CIMEJI_ROOT       "." )
-set( CIMEJI_THIRDPARTY "./thirdparty/" )
+set( CIMEJI_BUILD      "${CMAKE_CURRENT_LIST_DIR}/cimeji/" )
+set( CIMEJI_ROOT       "${CMAKE_CURRENT_LIST_DIR}" )
+set( CIMEJI_THIRDPARTY "${CMAKE_CURRENT_LIST_DIR}/thirdparty/" )
 
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY         ${CIMEJI_BUILD} )
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG   ${CIMEJI_BUILD} )

@@ -12,10 +12,14 @@
 #define SHIMEJI_MAX_COUNT 255
 
 #include "shimeji.h"
+
+extern std::vector< avatar_t* > gAvatars;
+
 /*
  *  Returns the list of shimejis.
  *
- *  @return shimeji_t *
+ *  @return avatar_t *
  *    An array of size SHIMEJI_MAX_COUNT containing the loaded shimejis.
  */
-shimeji_t **get_shimejis( void );
+std::vector< avatar_t* > get_avatars( void );
+

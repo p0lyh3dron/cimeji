@@ -8,35 +8,36 @@
  *	used for interfacing with shimejis.  
  */
 #include "shimeji.h"
+#include "manager.h"
 
 #include "util.h"
+#include "render.h"
 
 #include <malloc.h>
 #include <string.h>
 #include <spng.h>
-/*
- *  Initializes a shimeji.
- *
- *  @param  const char *
- *      The path to the shimeji.
- *  @return	shimeji_t *
- *      Valid pointer to shimeji_t on success, nullptr on failure.
- */
-shimeji_t *shimeji_init( const char *spPath ) {
-    shimeji_t *pShimeji = ( shimeji_t * )malloc( sizeof( shimeji_t ) );
-    pShimeji->apData    = ( shimeji_data_t ** )malloc( 1 * sizeof( shimeji_data_t * ) );
-    if( !pShimeji ) {
-        return NULL;
-    }
+#include <unordered_map>
+
+#include <QImage>
+
+
+bool avatar_load_data( const char *spPath, std::vector< shimeji_data_t* >& srData )
+{
     char **apFiles = scan_dir( spPath );
+
     int i, j;
-    for ( i = 0, j = 0; apFiles[ i ] != NULL; i++ ) {
-        if( strstr( apFiles[ i ], ".png" ) ) {
-            shimeji_data_t *pData = ( shimeji_data_t * )malloc( sizeof( shimeji_data_t ) );
+    for ( i = 0, j = 0; apFiles[ i ] != NULL; i++ )
+    {
+        if( strstr( apFiles[ i ], ".png" ) )
+        {
+            shimeji_data_t *pData = new shimeji_data_t;
+
+            /*shimeji_data_t *pData = (shimeji_data_t *)malloc(sizeof(shimeji_data_t));
             if( !pData ) {
-                fprintf( stderr, "Failed to allocate memory for shimeji data.\n" );
-                return NULL;            
-            }
+            fprintf( stderr, "Failed to allocate memory for shimeji data.\n" );
+            return NULL;            
+            }*/
+
             pData->aDataSize = 0;
             pData->apBuf     = NULL;
             pData->aWidth    = 0;
@@ -46,13 +47,13 @@ shimeji_t *shimeji_init( const char *spPath ) {
             FILE *pFile = fopen( apFiles[ i ], "rb" );
             if( !pFile ) {
                 fprintf( stderr, "Failed to open file %s.\n", apFiles[ i ] );
-                return NULL;
+                return false;
             }
 
             spng_ctx *pPng = spng_ctx_new( 0 );
             if( !pPng ) {
                 fprintf( stderr, "Failed to allocate memory for shimeji png context.\n" );
-                return NULL;
+                return false;
             }
 
             struct spng_ihdr ihdr;
@@ -60,68 +61,153 @@ shimeji_t *shimeji_init( const char *spPath ) {
             spng_set_png_file( pPng, pFile );
             spng_get_ihdr( pPng, &ihdr );
             spng_decoded_image_size( pPng, SPNG_FMT_RGBA8, ( size_t* )&pData->aDataSize );
+
             pData->apBuf = ( u8 * )malloc( pData->aDataSize );
-            if( !pData->apBuf ) {
+            if( !pData->apBuf )
+            {
                 fprintf( stderr, "Failed to allocate memory for shimeji data buffer.\n" );
-                return NULL;
+                return false;
             }
+
             spng_decode_image( pPng, pData->apBuf, pData->aDataSize, SPNG_FMT_RGBA8, 0 );
             spng_ctx_free( pPng );
 
+            pData->aPath   = apFiles[ i ];
             pData->aWidth  = ihdr.width;
             pData->aHeight = ihdr.height;
             pData->aFormat = SPNG_FMT_RGBA8;
 
-            pShimeji->apData = ( shimeji_data_t ** )realloc( pShimeji->apData, ( i + 1 ) * sizeof( shimeji_data_t * ) );
-            if( !pShimeji->apData ) {
-                fprintf( stderr, "Failed to allocate memory for shimeji data.\n" );
-                return NULL;
-            }
-            pShimeji->apData[ j++ ] = pData;
+            srData.push_back( pData ); 
         }
     }
-    pShimeji->apData = ( shimeji_data_t ** )realloc( pShimeji->apData, ( i ) * sizeof( shimeji_data_t * ) );
-    if( !pShimeji->apData ) {
-        fprintf( stderr, "Failed to allocate memory for shimeji data.\n" );
+
+    return true;
+}
+
+/*
+ *  Initializes a shimeji.
+ *
+ *  @param  const char *
+ *      The path to the shimeji.
+ *  @return	avatar_t *
+ *      Valid pointer to avatar_t on success, nullptr on failure.
+ */
+avatar_t *avatar_create( const char *spPath )
+{
+    avatar_t *pShimeji = new avatar_t;
+    // pShimeji->apData    = ( shimeji_data_t ** )malloc( 1 * sizeof( shimeji_data_t * ) );
+    if( !pShimeji )
+    {
         return NULL;
     }
-	
-    pShimeji->apData[ i-1 ] = NULL;
+
+    // check if we loaded this directory already
+    static std::unordered_map< std::string, std::vector< shimeji_data_t* > > aCache;
+
+    auto it = aCache.find( spPath );
+    if ( it != aCache.end() )
+    {
+        pShimeji->aData = it->second;
+    }
+    else
+    {
+        if ( !avatar_load_data( spPath, pShimeji->aData ) )
+        {
+            delete pShimeji;
+            return nullptr;
+        }
+
+        aCache[spPath] = pShimeji->aData;
+    }
 
     /* Dumb.  */
-    pShimeji->aWidth  = pShimeji->apData[ 0 ]->aWidth;
-    pShimeji->aHeight = pShimeji->apData[ 0 ]->aHeight;
+    pShimeji->aWidth  = pShimeji->aData[ 0 ]->aWidth;
+    pShimeji->aHeight = pShimeji->aData[ 0 ]->aHeight;
+    pShimeji->aPath   = spPath;
+
+    gAvatars.push_back( pShimeji );
 
     return pShimeji;
 }
+
+
 /*
  *  Frees a shimeji.
  *
- *  @param  shimeji_t *
+ *  @param  avatar_t *
  *      The shimeji to free.
  */
-void shimeji_free( shimeji_t *spShimeji ) {
-    for ( int i = 0; spShimeji->apData[ i ] != NULL; ++i ) {
-        free( spShimeji->apData[ i ]->apBuf );
-        free( spShimeji->apData[ i ] );
+void shimeji_free( avatar_t *spShimeji ) {
+    for ( int i = 0; i < spShimeji->aData.size(); ++i )
+    {
+        free( spShimeji->aData[ i ]->apBuf );
+        free( spShimeji->aData[ i ] );
     }
-    free( spShimeji->apData );
-    free( spShimeji );
+
+    // vec_remove( gAvatars, spShimeji );
+
+    delete spShimeji;
 }
-/*
- *  Updates the shimeji's values.
- *
- *  @param  shimeji_t *
- *      The shimeji to update.
- *  @param  u16
- *      The new x position.
- *  @param  u16
- *      The new y position.
- *  @param  behavior_t
- *      The new behavior.
- */
-void shimeji_set( shimeji_t *spShimeji, u16 sX, u16 sY, behavior_t sBehavior ) {
-    spShimeji->aPos[ 0 ] = sX;
-    spShimeji->aPos[ 1 ] = sY;
-    spShimeji->aBehavior = sBehavior;
+
+
+void avatar_set_image( avatar_t* spAvatar, u16 sFrame )
+{
+    if ( !spAvatar )
+        return;
+
+    if ( sFrame > spAvatar->aData.size() )
+    {
+        printf( "out of bounds image: %u\n", sFrame );
+        return;
+    }
+
+    spAvatar->aFrame = sFrame;
+    render_set_image( spAvatar, sFrame );
 }
+
+
+void avatar_set_image( avatar_t* spAvatar, const std::string& srPath )
+{
+    if ( !spAvatar )
+        return;
+
+    u16 i = 0;
+
+    for ( ;i < spAvatar->aData.size(); i++ )
+    {
+        if ( spAvatar->aData[i]->aPath == spAvatar->aPath + PATH_SEP + srPath )
+            break;
+    }
+
+    if ( i == spAvatar->aData.size() )
+    {
+        printf( "non-existent image: %s\n", srPath.c_str() );
+        return;
+    }
+
+    spAvatar->aFrame = i;
+    render_set_image( spAvatar, i );
+}
+
+
+void avatar_set_pos( avatar_t* spAvatar, u16 sX, u16 sY )
+{
+    if ( !spAvatar )
+        return;
+
+    spAvatar->aPos[ 0 ] = sX;
+    spAvatar->aPos[ 1 ] = sY;
+}
+
+
+void avatar_set_ang( avatar_t* spAvatar, u16 sAng )
+{
+
+}
+
+
+void avatar_set_scale( avatar_t* spAvatar, char sScaleX, char sScaleY )
+{
+
+}
+

@@ -40,10 +40,10 @@ void init_input( void );
  *      The x coordinate.
  *  @param  int
  *      The y coordinate.
- *  @return shimeji_t *
+ *  @return avatar_t *
  *      The shimeji at the given coordinates, or nullptr if there is no shimeji.
  */
-shimeji_t *get_shimeji( int x, int y );
+avatar_t *get_shimeji( int x, int y );
 /*
  * Returns the cursor's position
  *
@@ -56,10 +56,10 @@ void get_mouse_pos( int *x, int *y );
 /*
  *  Returns the shimeji at the mouse's current position.
  *
- *  @return shimeji_t *
+ *  @return avatar_t *
  *     The shimeji at the mouse's current position, or nullptr if there is no shimeji.
  */
-shimeji_t *get_shimeji_at_mouse( void );
+avatar_t *get_shimeji_at_mouse( void );
 /*
  *  Closes the input handle.
  */
