@@ -143,7 +143,7 @@ class IdleAction(BaseAction):
     # condition checking
     def pick_action(self, dt: float):
         if self.walkTime == -1:
-            self.walkTime = self.manager.time + random.randint(5, 15)
+            self.walkTime = self.manager.time + random.randint(3, 15)
 
         if self.walkTime <= self.manager.time:
             return self.manager.get_action("walk", self)
@@ -152,7 +152,7 @@ class IdleAction(BaseAction):
 
     def think(self, dt: float):
         if self.blinkTime <= self.manager.time:
-            cimeji.set_avatar_image(self.avatar, FRAMES_IDLE[self.blinkFrame])
+            cimeji.avatar_set_image(self.avatar, FRAMES_IDLE[self.blinkFrame])
 
             self.blinkFrame += 1
             if self.blinkFrame == len(FRAMES_IDLE):
@@ -166,6 +166,8 @@ class WalkAction(BaseAction):
     def __init__(self, manager, avatar):
         super().__init__("walk", manager, avatar)
 
+        self.totalWalkTime = 0
+
         self.walkTime = 0
         self.walkFrame = 0
         self.walkPosTime = 0
@@ -174,16 +176,30 @@ class WalkAction(BaseAction):
         self.walkFrame = 0
         self.walkTime = self.manager.time
         self.walkPosTime = self.manager.time
+        self.totalWalkTime = -1
+
+        # TODO: pick a random direction
+        #  or use facing direction when added to the manager?
+
+    # condition checking
+    def pick_action(self, dt: float):
+        if self.totalWalkTime == -1:
+            self.walkTime = self.manager.time + random.randint(3, 15)
+
+        if self.totalWalkTime <= self.manager.time:
+            return self.manager.get_action("idle", self)
+
+        return self
 
     def think(self, dt: float):
-        pos_x, pos_y = cimeji.get_avatar_pos(self.avatar)
+        pos_x, pos_y = cimeji.avatar_get_pos(self.avatar)
 
         if self.walkPosTime <= self.manager.time:
-            cimeji.set_avatar_pos(self.avatar, pos_x - 1, pos_y)
+            cimeji.avatar_set_pos(self.avatar, pos_x - 1, pos_y)
             self.walkPosTime += 0.01
 
         if self.walkTime <= self.manager.time:
-            cimeji.set_avatar_image(self.avatar, FRAMES_WALK[self.walkFrame])
+            cimeji.avatar_set_image(self.avatar, FRAMES_WALK[self.walkFrame])
 
             self.walkFrame += 1
             if self.walkFrame == len(FRAMES_WALK):
@@ -211,7 +227,7 @@ class GrabbedAction(BaseAction):
 
     def think(self, dt: float):
         if self.grabbedTime <= self.manager.time:
-            cimeji.set_avatar_image(self.avatar, FRAMES_GRABBED[self.grabbedFrame])
+            cimeji.avatar_set_image(self.avatar, FRAMES_GRABBED[self.grabbedFrame])
 
             self.grabbedFrame += 1
             if self.grabbedFrame == len(FRAMES_GRABBED):
@@ -240,10 +256,10 @@ class FallAction(BaseAction):
         return self.manager.get_action("get_up", self)
 
     def think(self, dt: float):
-        pos_x, pos_y = cimeji.get_avatar_pos(self.avatar)
+        pos_x, pos_y = cimeji.avatar_get_pos(self.avatar)
 
         if self.time <= self.manager.time:
-            cimeji.set_avatar_pos(
+            cimeji.avatar_set_pos(
                 self.avatar,
                 pos_x + self.manager.gravity[0],
                 pos_y + self.manager.gravity[1]
@@ -251,7 +267,7 @@ class FallAction(BaseAction):
             self.time += 0.01
 
         if self.frameTime <= self.manager.time:
-            cimeji.set_avatar_image(self.avatar, FRAMES_FALL[self.frame])
+            cimeji.avatar_set_image(self.avatar, FRAMES_FALL[self.frame])
 
             self.frame += 1
             if self.frame == len(FRAMES_FALL):
@@ -290,7 +306,7 @@ class GetUpAction(BaseAction):
                 self.finished = True
                 return
 
-            cimeji.set_avatar_image(self.avatar, FRAMES_GET_UP[self.frame])
+            cimeji.avatar_set_image(self.avatar, FRAMES_GET_UP[self.frame])
 
             self.frame += 1
             self.frameTime += 0.6

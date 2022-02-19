@@ -28,15 +28,15 @@ class monitor_t:
         self.aSizeY = 0,
 
 
-def get_avatar_pos(avatar) -> Tuple[int, int]:
+def avatar_get_pos(avatar) -> Tuple[int, int]:
     pass
 
 
-def set_avatar_pos(avatar, x: int, y: int):
+def avatar_set_pos(avatar, x: int, y: int):
     pass
 
 
-def set_avatar_image(avatar, image: str):
+def avatar_set_image(avatar, image: str):
     pass
 
 

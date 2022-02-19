@@ -159,7 +159,7 @@ void shimeji_free( avatar_t *spShimeji ) {
 }
 
 
-void avatar_set_image( avatar_t* spAvatar, u16 sFrame )
+void avatar_set_image( avatar_t* spAvatar, u16 sFrame, bool sFlipped )
 {
     if ( !spAvatar )
         return;
@@ -171,11 +171,11 @@ void avatar_set_image( avatar_t* spAvatar, u16 sFrame )
     }
 
     spAvatar->aFrame = sFrame;
-    render_set_image( spAvatar, sFrame );
+    render_set_image( spAvatar, sFrame, sFlipped );
 }
 
 
-void avatar_set_image( avatar_t* spAvatar, const std::string& srPath )
+void avatar_set_image( avatar_t* spAvatar, const std::string& srPath, bool sFlipped )
 {
     if ( !spAvatar )
         return;
@@ -195,7 +195,7 @@ void avatar_set_image( avatar_t* spAvatar, const std::string& srPath )
     }
 
     spAvatar->aFrame = i;
-    render_set_image( spAvatar, i );
+    render_set_image( spAvatar, i, sFlipped );
 }
 
 
@@ -209,6 +209,7 @@ void avatar_set_pos( avatar_t* spAvatar, u16 sX, u16 sY )
 }
 
 
+// TODO: be able to set a rotation anchor point, like on the 2d sprites in chocolate
 void avatar_set_ang( avatar_t* spAvatar, u16 sAng )
 {
 

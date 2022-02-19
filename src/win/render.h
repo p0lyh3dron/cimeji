@@ -54,8 +54,10 @@ void render_draw( shimeji_surface_t *spSurface, avatar_t *spShimeji );
 *     The pointer to the avatar
 *  @param  u16
 *     The image index to draw.
+*  @param  bool
+*     Should we flip the image? (may be removed later for scaling instead, idk)
 */
-void render_set_image( avatar_t *spAvatar, u16 sIndex );
+void render_set_image( avatar_t *spAvatar, u16 sIndex, bool sFlip = false );
 
 /*
 

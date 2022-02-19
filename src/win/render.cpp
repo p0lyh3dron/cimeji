@@ -661,7 +661,7 @@ void render_add( shimeji_surface_t *spSurface, avatar_t *spShimeji )
 }
 
 
-void render_set_image( avatar_t *spAvatar, u16 sIndex )
+void render_set_image( avatar_t *spAvatar, u16 sIndex, bool sFlip )
 {
     ShimejiWindow* window = gpRenderer->GetAvatarWindow( spAvatar );
     if ( !window )
