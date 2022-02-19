@@ -184,7 +184,7 @@ class WalkAction(BaseAction):
     # condition checking
     def pick_action(self, dt: float):
         if self.totalWalkTime == -1:
-            self.walkTime = self.manager.time + random.randint(3, 15)
+            self.totalWalkTime = self.manager.time + random.randint(3, 15)
 
         if self.totalWalkTime <= self.manager.time:
             return self.manager.get_action("idle", self)
