@@ -21,6 +21,8 @@ ControlPanel::ControlPanel()
 
     label->show();
 #endif
+
+    setWindowFlags( Qt::Drawer );
 }
 
 ControlPanel::~ControlPanel()
