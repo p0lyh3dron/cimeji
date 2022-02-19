@@ -43,3 +43,11 @@ def set_avatar_image(avatar, image: str):
 def avatar_grabbed(avatar) -> bool:
     pass
 
+
+# ===========================================================================
+# Desktop Environment Functions
+
+
+def env_find_window(avatar):
+    pass
+
