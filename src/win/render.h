@@ -57,3 +57,8 @@ void render_draw( shimeji_surface_t *spSurface, avatar_t *spShimeji );
 */
 void render_set_image( avatar_t *spAvatar, u16 sIndex );
 
+/*
+
+*/
+void render_clear();
+

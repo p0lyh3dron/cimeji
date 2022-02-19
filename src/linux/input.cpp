@@ -79,20 +79,27 @@ u32 get_mouse_click( void ) {
  *     The thread's return value, which is unused.
  */
 void *input_thread( void *spArgs ) {
+    static int mouseXOffset = 0;
+    static int mouseYOffset = 0;
     while( 1 ) {
         get_mouse_click();
-        if ( gInputFlags & I_LMB ) {
+        if ( !gpGrabbedShimeji && gInputFlags & I_LMB ) {
             avatar_t *pShimeji = get_shimeji_at_mouse();
             if ( pShimeji ) {
                 gpGrabbedShimeji = pShimeji;
+
+                get_mouse_pos( &gMouseX, &gMouseY );
+                mouseXOffset = gMouseX - gpGrabbedShimeji->aPos[ 0 ];
+                mouseYOffset = gMouseY - gpGrabbedShimeji->aPos[ 1 ];
             }
         }
-        else {
+        else if ( !( gInputFlags & I_LMB ) ) {
             gpGrabbedShimeji = nullptr;
         }
         if ( gpGrabbedShimeji ) {
             get_mouse_pos( &gMouseX, &gMouseY );
-            shimeji_set( gpGrabbedShimeji, gMouseX, gMouseY, StandUp );
+            
+            shimeji_set( gpGrabbedShimeji, gMouseX - mouseXOffset, gMouseY - mouseYOffset, StandUp );
         }
     }
 }
@@ -145,6 +152,10 @@ avatar_t *get_shimeji( int x, int y ) {
  *     Location to store the y position.
  */
 void get_mouse_pos( int *x, int *y ) {
+    if ( !( x && y ) ) {
+        return;
+    }
+
     Window root, child;
     int root_x, root_y;
     unsigned int mask;

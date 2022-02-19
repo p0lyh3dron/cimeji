@@ -15,7 +15,7 @@
 #ifdef _WIN32
 	#define TEST_SHIMEJI "rai"
 #else
-	#define TEST_SHIMEJI "/home/karl/Downloads/shimejiee/img/rai/"
+	#define TEST_SHIMEJI "/home/karl/Downloads/Eliwood by Eeveetachi/img/"
 #endif
 
 constexpr int TEST_COUNT = 1;
@@ -82,6 +82,7 @@ class Main : public QThread
 		Py_Finalize();
 		
 		close_input();
+		render_clear();
 		shimeji_surface_free( pSurface );
 		return;
 	}

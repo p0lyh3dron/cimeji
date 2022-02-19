@@ -31,18 +31,7 @@ bool avatar_load_data( const char *spPath, std::vector< shimeji_data_t* >& srDat
         if( strstr( apFiles[ i ], ".png" ) )
         {
             shimeji_data_t *pData = new shimeji_data_t;
-
-            /*shimeji_data_t *pData = (shimeji_data_t *)malloc(sizeof(shimeji_data_t));
-            if( !pData ) {
-            fprintf( stderr, "Failed to allocate memory for shimeji data.\n" );
-            return NULL;            
-            }*/
-
-            pData->aDataSize = 0;
             pData->apBuf     = NULL;
-            pData->aWidth    = 0;
-            pData->aHeight   = 0;
-            pData->aFormat   = 0;
 
             FILE *pFile = fopen( apFiles[ i ], "rb" );
             if( !pFile ) {
@@ -60,7 +49,12 @@ bool avatar_load_data( const char *spPath, std::vector< shimeji_data_t* >& srDat
 
             spng_set_png_file( pPng, pFile );
             spng_get_ihdr( pPng, &ihdr );
+			
             spng_decoded_image_size( pPng, SPNG_FMT_RGBA8, ( size_t* )&pData->aDataSize );
+
+#ifdef __unix__
+            //u8 *pBuf = ( u8 * )malloc( pData->aDataSize );
+#endif /* __unix__  */
 
             pData->apBuf = ( u8 * )malloc( pData->aDataSize );
             if( !pData->apBuf )
@@ -70,7 +64,23 @@ bool avatar_load_data( const char *spPath, std::vector< shimeji_data_t* >& srDat
             }
 
             spng_decode_image( pPng, pData->apBuf, pData->aDataSize, SPNG_FMT_RGBA8, 0 );
+
             spng_ctx_free( pPng );
+			
+#ifdef __unix__
+            /* RGBA to BGRA  */
+            for ( int i = 0; i < len; i++ ) {
+                if ( i % 4 == 0 ) {
+                    pData->apBuf[ i + 2 ] = pBuf[ i ];
+                }
+                else if ( i % 4 == 2 ) {
+                    pData->apBuf[ i - 2 ] = pBuf[ i ];
+                }
+                else {
+                    pData->apBuf[ i ]     = pBuf[ i ];
+                }
+            }
+#endif /* __unix__  */
 
             pData->aPath   = apFiles[ i ];
             pData->aWidth  = ihdr.width;
@@ -95,7 +105,6 @@ bool avatar_load_data( const char *spPath, std::vector< shimeji_data_t* >& srDat
 avatar_t *avatar_create( const char *spPath )
 {
     avatar_t *pShimeji = new avatar_t;
-    // pShimeji->apData    = ( shimeji_data_t ** )malloc( 1 * sizeof( shimeji_data_t * ) );
     if( !pShimeji )
     {
         return NULL;

@@ -23,9 +23,9 @@ shimeji_surface_t *shimeji_surface_init() {
     if ( !pSurface )
         return 0;
 
-    pSurface->aWidth    = 1920;
-    pSurface->aHeight   = 1080;
     pSurface->apDisplay = XOpenDisplay( 0 );
+    pSurface->aWidth    = XDisplayWidth( pSurface->apDisplay, 0 );
+    pSurface->aHeight   = XDisplayHeight( pSurface->apDisplay, 0 );
     if ( !pSurface->apDisplay ) {
         free( pSurface );
         return 0;
@@ -77,8 +77,7 @@ void shimeji_surface_free( shimeji_surface_t *spSurface ) {
 void shimeji_surface_clear( shimeji_surface_t *spSurface ) {
     XSync( spSurface->apDisplay, 1 );
     XFlush( spSurface->apDisplay );
-    XClearWindow( spSurface->apDisplay, spSurface->aOverlayWin );
-    usleep( 50000 );
+    usleep( 5000 );
 }
 /*
  *  Allows input passthrough for the window.

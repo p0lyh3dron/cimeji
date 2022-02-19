@@ -673,3 +673,8 @@ void render_set_image( avatar_t *spAvatar, u16 sIndex )
     window->SetBitmap( sIndex );
 }
 
+
+void render_clear()
+{
+}
+

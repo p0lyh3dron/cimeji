@@ -22,8 +22,6 @@ constexpr char PATH_SEP = '\\';
 constexpr char PATH_SEP = '/';
 #endif
 
-// typedef void (*think_func)( float sDT );
-
 struct shimeji_data_t
 {
     u32 aDataSize;
@@ -47,6 +45,7 @@ struct avatar_t
     u16              aFrame = 0;
     bool             aGrabbed = false;
 };
+
 /*
  *  Initializes a shimeji.
  *
