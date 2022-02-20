@@ -29,11 +29,14 @@ struct monitor_t
 	int aSizeY;
 };
 
-struct display_area_t
-{
-	int aSizeX;
-	int aSizeY;
-};
+
+/*
+ * Init, Destroy, and Update Desktop Environment Helpers
+ */
+void env_init();
+void env_shutdown();
+void env_update();
+
 
 /*
  * Find a Window within a box
@@ -85,9 +88,19 @@ void env_offset_window( window_t spWindow, u16 sX, u16 sY );
 monitor_t* env_get_current_monitor( avatar_t* spAvatar );
 
 /*
+* Get total monitor count
+*/
+int env_get_monitor_count();
+
+/*
 * Get Total Area Size of all monitors
 * 
 * NOT IMPLEMENTED
 */
-display_area_t* env_get_display_area();
+void env_get_display_area( int& width, int& height );
+
+/*
+* Get Cursor Position
+*/
+void env_cursor_pos( int& srX, int& srY );
 

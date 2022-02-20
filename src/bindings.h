@@ -12,9 +12,12 @@
 #include "env.h"
 
 
-PyDoc_STRVAR(avatar_get_pos_doc, "get avatar position in an x and y tuple");
+#define PY_FUNC( func, help ) \
+    PyDoc_STRVAR( func##_doc, help ); \
+    static PyObject* py_##func( PyObject* self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames ) \
 
-static PyObject* py_avatar_get_pos( PyObject* self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames )
+
+PY_FUNC( avatar_get_pos, "get avatar position in an x and y tuple" )
 {
     // check args
     if ( nargs != 1 )
@@ -143,13 +146,93 @@ static PyObject* py_avatar_grabbed( PyObject* self, PyObject *const *args, Py_ss
 }
 
 
-static PyMethodDef methods[] = {
-    {"avatar_get_pos",      (PyCFunction)py_avatar_get_pos, METH_FASTCALL, avatar_get_pos_doc},
-    {"avatar_set_pos",      (PyCFunction)py_avatar_set_pos, METH_FASTCALL, avatar_set_pos_doc},
-    {"avatar_set_image",    (PyCFunction)py_avatar_set_image, METH_FASTCALL, avatar_set_image_doc},
-    {"avatar_grabbed",      (PyCFunction)py_avatar_grabbed, METH_FASTCALL, avatar_grabbed_doc},
+// -------------------------------------------------------------------------
+// Desktop Environment Bindings
 
-    {"env_find_window",     (PyCFunction)py_avatar_grabbed, METH_FASTCALL, avatar_grabbed_doc},
+
+PyDoc_STRVAR(env_find_window_doc, "Find a window within the bounds of the avatar");
+
+static PyObject* py_env_find_window( PyObject* self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames )
+{
+    if ( nargs != 1 )
+    {
+        printf( "\"env_find_window()\" Needs Avatar passed into it: arg count: %zu\n", nargs );
+        return nullptr;
+    }
+
+    avatar_t* avatar = pyenv_get_avatar( args[0] );
+    if ( !avatar )
+        return nullptr;
+
+    window_t window = env_find_window( avatar );
+
+    PyObject* pyWindow = PyFloat_FromDouble( (size_t)window );
+
+    return pyWindow;
+}
+
+
+PyDoc_STRVAR(env_cursor_pos_doc, "get cursor position");
+
+static PyObject* py_env_cursor_pos( PyObject* self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames )
+{
+    // check args
+    if ( nargs != 0 )
+    {
+        printf( "\"get_avatar_pos()\" Needs no parameters passed into it\n" );
+        return nullptr;
+    }
+
+    int x, y;
+    env_cursor_pos( x, y );
+
+    PyObject* pArgs = PyTuple_New( 2 );
+
+    PyObject* pX = PyLong_FromLong( x );
+    PyObject* pY = PyLong_FromLong( y );
+
+    // pX and pY references stolen here:
+    PyTuple_SetItem( pArgs, 0, pX );
+    PyTuple_SetItem( pArgs, 1, pY );
+
+    return pArgs;
+}
+
+
+PY_FUNC( env_get_monitor_count, "get monitor count" )
+{
+    // check args
+    if ( nargs != 0 )
+    {
+        printf( "\"get_avatar_pos()\" Needs no parameters passed into it\n" );
+        return nullptr;
+    }
+
+    int count = env_get_monitor_count();
+
+    PyObject* pCount = PyLong_FromLong( count );
+
+    return pCount;
+}
+
+
+// -------------------------------------------------------------------------
+// Setup Methods
+
+
+#define ADD_METHOD( func, method ) {#func, (PyCFunction)py_##func, method, func##_doc}
+
+
+static PyMethodDef methods[] = {
+    ADD_METHOD( avatar_get_pos,             METH_FASTCALL ),
+    ADD_METHOD( avatar_set_pos,             METH_FASTCALL ),
+    ADD_METHOD( avatar_set_image,           METH_FASTCALL ),
+    ADD_METHOD( avatar_grabbed,             METH_FASTCALL ),
+
+    ADD_METHOD( env_find_window,            METH_FASTCALL ),
+    ADD_METHOD( env_cursor_pos,             METH_FASTCALL ),
+
+    ADD_METHOD( env_get_monitor_count,      METH_FASTCALL ),
 
     {NULL, NULL, 0, NULL},
 };
@@ -169,4 +252,8 @@ static PyModuleDef cimeji_module = {
     NULL,
     NULL
 };
+
+
+#undef PY_FUNC
+#undef ADD_METHOD
 

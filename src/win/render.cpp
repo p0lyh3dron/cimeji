@@ -652,7 +652,7 @@ void render_start( shimeji_surface_t* spSurface )
 }
 
 
-void render_add( shimeji_surface_t *spSurface, avatar_t *spShimeji )
+void render_add( avatar_t *spShimeji )
 {
     // not thread safe, cringe
 

@@ -51,6 +51,8 @@ class Main : public QThread
 			shimejiList.push_back( pShimeji );
 		}
 
+		env_init();
+
 		auto startTime = std::chrono::high_resolution_clock::now();
 
 		while( 1 )
@@ -65,6 +67,8 @@ class Main : public QThread
 			// don't have this cpu core go at full tilt for a simple desktop pet please 
 			usleep( 1 );
 #endif
+			env_update();
+
 			bool ret = true;
 
 			for ( auto shimeji: shimejiList )
@@ -83,6 +87,7 @@ class Main : public QThread
 		
 		close_input();
 		render_clear();
+		env_shutdown();
 		shimeji_surface_free( pSurface );
 		return;
 	}

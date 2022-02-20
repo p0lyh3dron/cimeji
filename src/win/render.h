@@ -22,12 +22,10 @@ void render_start( shimeji_surface_t* spSurface );
 /*
 *  Adds a shimeji to the render queue.
 *
-*  @param  shimeji_surface_t *
-*     The surface to add to the render queue.
 *  @param  avatar_t *
 *     The shimeji to add to the render queue.
 */
-void render_add( shimeji_surface_t *spSurface, avatar_t *spShimeji );
+void render_add( avatar_t *spShimeji );
 
 /*
 *  Removes a shimeji from the render queue.

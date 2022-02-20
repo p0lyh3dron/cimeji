@@ -63,6 +63,11 @@ FRAMES_IDLE = [
 # - condition node
 
 
+# really should have this be defined behavior trees, just a set of actions to run
+# but i don't know how to set it up fully just yet
+# mainly with passing data around
+
+
 class Node:
     def __init__(self):
         pass

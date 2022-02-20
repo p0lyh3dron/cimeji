@@ -23,6 +23,30 @@
 #include <minwinbase.h> 
 
 
+static std::vector< monitor_t* > gMonitors;
+
+
+/*
+ * Init, Destroy, and Update Desktop Environment Helpers
+ */
+void env_init()
+{
+
+}
+
+
+void env_shutdown()
+{
+
+}
+
+
+void env_update()
+{
+
+}
+
+
 /*
 * Find a Window within a box
 * 
@@ -112,11 +136,31 @@ monitor_t* env_get_current_monitor( avatar_t* spAvatar )
 
 
 /*
-* Get Total Area Size of all monitors
-* 
-* NOT IMPLEMENTED
+* Get total monitor count
 */
-display_area_t* env_get_display_area()
+int env_get_monitor_count()
 {
-	return nullptr;
+	return GetSystemMetrics( SM_CMONITORS );
 }
+
+
+/*
+* Get Total Area Size of all monitors
+*/
+void env_get_display_area( int& width, int& height )
+{
+}
+
+
+/*
+* Get Cursor Position
+*/
+void env_cursor_pos( int& srX, int& srY )
+{
+	POINT pos;
+	GetCursorPos( &pos );
+
+	srX = pos.x;
+	srY = pos.y;
+}
+

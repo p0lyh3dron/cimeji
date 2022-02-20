@@ -51,3 +51,11 @@ def avatar_grabbed(avatar) -> bool:
 def env_find_window(avatar):
     pass
 
+
+def env_get_monitor_count() -> int:
+    pass
+
+
+def env_cursor_pos() -> Tuple[int, int]:
+    pass
+
