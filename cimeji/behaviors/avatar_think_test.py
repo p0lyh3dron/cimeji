@@ -27,6 +27,28 @@ FRAMES_GET_UP = [
     "shime30.png",
 ]
 
+FRAMES_SIT_DOWN = [
+    "shime30.png",
+]
+
+FRAMES_SIT = [
+    "shime11.png",
+    # shime17 for looking the other way
+]
+
+FRAMES_SIT_DANGLE_LEGS = [
+    ["shime31.png", 2.0],
+]
+
+FRAMES_SIT_DANGLE_LEGS_LOOP = [
+    ["shime32c.png", 0.15],
+    ["shime32.png", 0.15],
+    ["shime32b.png", 0.7],
+    ["shime33c.png", 0.15],
+    ["shime33.png", 0.15],
+    ["shime33b.png", 0.7],
+]
+
 FRAMES_IDLE = [
     "shime1.png",
     "shime1w1.png",
@@ -151,7 +173,11 @@ class IdleAction(BaseAction):
             self.walkTime = self.manager.time + random.randint(3, 15)
 
         if self.walkTime <= self.manager.time:
-            return self.manager.get_action("walk", self)
+            action = random.randint(0, 1)
+            if action == 1:
+                return self.manager.get_action("sit_down", self)
+            else:
+                return self.manager.get_action("walk", self)
 
         return self
 
@@ -213,6 +239,111 @@ class WalkAction(BaseAction):
             self.walkTime += 0.2
 
 
+class SitDownAction(BaseAction):
+    def __init__(self, manager, avatar):
+        super().__init__("sit_down", manager, avatar)
+
+        self.totalTime = -1
+
+        self.time = 0
+        self.frame = 0
+
+    def on_set(self, dt: float):
+        self.frame = 0
+        self.time = self.manager.time
+        self.totalTime = self.manager.time + 0.4
+
+        cimeji.avatar_set_image(self.avatar, FRAMES_SIT_DOWN[0])
+
+    # condition checking
+    def pick_action(self, dt: float):
+        if self.totalTime <= self.manager.time:
+            dangle_legs = random.randint(0, 1)
+            if dangle_legs:
+                return self.manager.get_action("sit_and_dangle_legs", self)
+            else:
+                return self.manager.get_action("sit", self)
+
+        return self
+
+    def think(self, dt: float):
+        return
+
+
+class SitAction(BaseAction):
+    def __init__(self, manager, avatar):
+        super().__init__("sit", manager, avatar)
+
+        self.totalTime = -1
+
+        self.time = 0
+        self.frame = 0
+
+    def on_set(self, dt: float):
+        self.frame = 0
+        self.time = self.manager.time
+        self.totalTime = self.manager.time + random.randint(8, 25)
+
+        cimeji.avatar_set_image(self.avatar, FRAMES_SIT[0])
+
+    # condition checking
+    def pick_action(self, dt: float):
+        if self.totalTime <= self.manager.time:
+            return self.manager.get_action("land_get_up", self)
+
+        return self
+
+    def think(self, dt: float):
+        return
+
+
+class SitDangleAction(BaseAction):
+    def __init__(self, manager, avatar):
+        super().__init__("sit_and_dangle_legs", manager, avatar)
+
+        self.totalTime = 0
+        self.frames = FRAMES_SIT_DANGLE_LEGS
+
+        self.time = 0
+        self.frame = 0
+        self.walkPosTime = 0
+
+    def on_set(self, dt: float):
+        self.frame = 0
+        self.frames = FRAMES_SIT_DANGLE_LEGS
+        self.time = self.manager.time
+        self.walkPosTime = self.manager.time
+        self.totalTime = -1
+
+        # TODO: pick a random direction
+        #  or use facing direction when added to the manager?
+
+    # condition checking
+    def pick_action(self, dt: float):
+        if self.totalTime == -1:
+            self.totalTime = self.manager.time + random.randint(12, 30)
+
+        if self.totalTime <= self.manager.time:
+            return self.manager.get_action("land_get_up", self)
+
+        return self
+
+    def think(self, dt: float):
+        if self.time <= self.manager.time:
+            cimeji.avatar_set_image(self.avatar, self.frames[self.frame][0])
+
+            self.time += self.frames[self.frame][1]
+            self.frame += 1
+
+            if self.frame == len(self.frames):
+                self.frame = 0
+
+                if random.randint(0, 0) == 1:
+                    self.frames = FRAMES_SIT_DANGLE_LEGS
+                else:
+                    self.frames = FRAMES_SIT_DANGLE_LEGS_LOOP
+
+
 class GrabbedAction(BaseAction):
     def __init__(self, manager, avatar):
         super().__init__("grabbed", manager, avatar)
@@ -258,7 +389,7 @@ class FallAction(BaseAction):
         # if not cimeji.env_find_window(self.avatar):
         #     return self
 
-        return self.manager.get_action("get_up", self)
+        return self.manager.get_action("land_get_up", self)
 
     def think(self, dt: float):
         pos_x, pos_y = cimeji.avatar_get_pos(self.avatar)
@@ -283,9 +414,9 @@ class FallAction(BaseAction):
 
 # TODO: really should create some base action types to use
 # like a simple animation playing action
-class GetUpAction(BaseAction):
+class LandGetUpAction(BaseAction):
     def __init__(self, manager, avatar):
-        super().__init__("get_up", manager, avatar)
+        super().__init__("land_get_up", manager, avatar)
 
         self.finished = False
         self.frameTime = 0
@@ -338,9 +469,12 @@ class Manager:
     def init_default_actions(self):
         self.register_action(IdleAction(self, self.avatar))
         self.register_action(WalkAction(self, self.avatar))
+        self.register_action(SitDownAction(self, self.avatar))
+        self.register_action(SitAction(self, self.avatar))
+        self.register_action(SitDangleAction(self, self.avatar))
         self.register_action(FallAction(self, self.avatar))
         self.register_action(GrabbedAction(self, self.avatar))
-        self.register_action(GetUpAction(self, self.avatar))
+        self.register_action(LandGetUpAction(self, self.avatar))
 
         self.action = self._actions["idle"]
 
