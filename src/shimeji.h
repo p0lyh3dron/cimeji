@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include <qdatastream.h>
+
 #include <string>
 #include <vector>
 

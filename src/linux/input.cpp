@@ -86,20 +86,22 @@ void *input_thread( void *spArgs ) {
         if ( !gpGrabbedShimeji && gInputFlags & I_LMB ) {
             avatar_t *pShimeji = get_shimeji_at_mouse();
             if ( pShimeji ) {
-                gpGrabbedShimeji = pShimeji;
+                gpGrabbedShimeji   = pShimeji;
+                pShimeji->aGrabbed = true;
 
                 get_mouse_pos( &gMouseX, &gMouseY );
                 mouseXOffset = gMouseX - gpGrabbedShimeji->aPos[ 0 ];
                 mouseYOffset = gMouseY - gpGrabbedShimeji->aPos[ 1 ];
-            }
+            }            
         }
-        else if ( !( gInputFlags & I_LMB ) ) {
-            gpGrabbedShimeji = nullptr;
+        else if ( gpGrabbedShimeji && !( gInputFlags & I_LMB ) ) {
+            gpGrabbedShimeji->aGrabbed = false;
+            gpGrabbedShimeji           = nullptr;
         }
         if ( gpGrabbedShimeji ) {
             get_mouse_pos( &gMouseX, &gMouseY );
             
-            shimeji_set( gpGrabbedShimeji, gMouseX - mouseXOffset, gMouseY - mouseYOffset, StandUp );
+            avatar_set_pos( gpGrabbedShimeji, gMouseX - mouseXOffset, gMouseY - mouseYOffset );
         }
     }
 }
@@ -133,7 +135,7 @@ void init_input( void ) {
  *      The shimeji at the given coordinates, or nullptr if there is no shimeji.
  */
 avatar_t *get_shimeji( int x, int y ) {
-    for ( int i = 0; i < SHIMEJI_MAX_COUNT; ++i ) {
+    for ( int i = 0; i < gAvatars.size(); ++i ) {
         if ( get_avatars()[ i ] ) {
             if ( x >= get_avatars()[ i ]->aPos[ 0 ] && x <= get_avatars()[ i ]->aPos[ 0 ] + get_avatars()[ i ]->aWidth &&
                  y >= get_avatars()[ i ]->aPos[ 1 ] && y <= get_avatars()[ i ]->aPos[ 1 ] + get_avatars()[ i ]->aHeight ) {

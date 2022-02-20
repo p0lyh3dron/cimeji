@@ -15,7 +15,7 @@
 #ifdef _WIN32
 	#define TEST_SHIMEJI "rai"
 #else
-	#define TEST_SHIMEJI "/home/karl/Downloads/Eliwood by Eeveetachi/img/"
+	#define TEST_SHIMEJI "/home/karl/Downloads/Eliwood by Eeveetachi/img"
 #endif
 
 constexpr int TEST_COUNT = 1;
@@ -39,14 +39,14 @@ class Main : public QThread
 
 		// load a behavior script
 		if ( !(behavior = pyenv_load_behavior( "avatar_think_test" )) )
-			throw std::exception( "Failed to load test behavior" );
+			throw std::runtime_error( "Failed to load test behavior" );
 
 		std::vector< avatar_t* > shimejiList;
 
 		for ( int i = 0; i < TEST_COUNT; i++ )
 		{
 			avatar_t *pShimeji = avatar_create( TEST_SHIMEJI );
-			render_add( pSurface, pShimeji );
+			render_add( pShimeji );
 			pShimeji->apBehavior = behavior;
 			shimejiList.push_back( pShimeji );
 		}

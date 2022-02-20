@@ -20,7 +20,6 @@
 
 #include <QImage>
 
-
 bool avatar_load_data( const char *spPath, std::vector< shimeji_data_t* >& srData )
 {
     char **apFiles = scan_dir( spPath );
@@ -53,7 +52,7 @@ bool avatar_load_data( const char *spPath, std::vector< shimeji_data_t* >& srDat
             spng_decoded_image_size( pPng, SPNG_FMT_RGBA8, ( size_t* )&pData->aDataSize );
 
 #ifdef __unix__
-            //u8 *pBuf = ( u8 * )malloc( pData->aDataSize );
+            u8 *pBuf = ( u8 * )malloc( pData->aDataSize );
 #endif /* __unix__  */
 
             pData->apBuf = ( u8 * )malloc( pData->aDataSize );
@@ -68,8 +67,9 @@ bool avatar_load_data( const char *spPath, std::vector< shimeji_data_t* >& srDat
             spng_ctx_free( pPng );
 			
 #ifdef __unix__
+            memcpy( ( char* )pBuf, ( char* )pData->apBuf, pData->aDataSize );
             /* RGBA to BGRA  */
-            for ( int i = 0; i < len; i++ ) {
+            for ( int i = 0; i < pData->aDataSize; i++ ) {
                 if ( i % 4 == 0 ) {
                     pData->apBuf[ i + 2 ] = pBuf[ i ];
                 }
@@ -80,6 +80,7 @@ bool avatar_load_data( const char *spPath, std::vector< shimeji_data_t* >& srDat
                     pData->apBuf[ i ]     = pBuf[ i ];
                 }
             }
+            free( pBuf );
 #endif /* __unix__  */
 
             pData->aPath   = apFiles[ i ];

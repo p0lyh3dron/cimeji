@@ -102,7 +102,7 @@ else()  # linux
 		"src/linux/"
 	)
 	      
-	link_libraries( pthread X11 Xfixes Xcomposite cairo m )
+	link_libraries( pthread X11 Xfixes Xcomposite cairo m spng )
 	
 	if ( CMAKE_BUILD_TYPE STREQUAL Debug )
 		add_compile_options( -g )

@@ -9,14 +9,16 @@
  */
 #include "render.h"
 
+#include <qdatastream.h>
+
 #include <pthread.h>
 #include <unistd.h>
 #include <math.h>
 #include <stdio.h>
-static shimeji_t **gpAvatars;
-static XImage    **gpImages   [ SHIMEJI_MAX_COUNT ]  = { 0 };
+static XImage           **gpImages   [ SHIMEJI_MAX_COUNT ]  = { 0 };
 
-static Pixmap      gPixmap = 0;
+static Pixmap             gPixmap = 0;
+static shimeji_surface_t *gpSurface = 0;
 /*
  *  Renders the surface.
  *
@@ -28,16 +30,11 @@ static Pixmap      gPixmap = 0;
 void *render_thread( void *spSurface ) {
     shimeji_surface_t *pSurface = ( shimeji_surface_t * )spSurface;
     cairo_t *pCairo = shimeji_cairo_init( pSurface );
-    int counter = 0;
     while( 1 ) {
-        ++counter;
         shimeji_surface_clear( pSurface );
-        for ( int i = 0; i < SHIMEJI_MAX_COUNT; ++i ) {
-            if ( gpAvatars[ i ] ) {
-                if ( !gpAvatars[ i ]->apData[ counter ] )
-                    counter = 0;
-                gpAvatars[ i ]->aCurrentFrame = counter;
-                render_draw( pSurface, gpAvatars[ i ] );
+        for ( int i = 0; i < gAvatars.size(); ++i ) {
+            if ( gAvatars[ i ] ) {
+                render_draw( gAvatars[ i ] );
             }
         }
     }
@@ -50,9 +47,9 @@ void *render_thread( void *spSurface ) {
  *      The surface to render on.
  */
 void render_start( shimeji_surface_t *spSurface ) {
-    gpAvatars = get_avatars();
+    gpSurface = spSurface;
     allow_input_passthrough( spSurface );
-    gPixmap = create_pixmap( spSurface );
+    gPixmap = create_pixmap();
 
     pthread_t p;
     pthread_create( &p, NULL, render_thread, spSurface );
@@ -62,7 +59,7 @@ void render_start( shimeji_surface_t *spSurface ) {
 */
 void render_clear( void ) {
     for ( int i = 0; i < SHIMEJI_MAX_COUNT; ++i ) {
-        render_remove( gpAvatars[ i ] );
+        render_remove( gAvatars[ i ] );
     }
     if ( gPixmap ) {
         //XFreePixmap( gpDisplay, gPixmap );
@@ -72,8 +69,6 @@ void render_clear( void ) {
 /*
  *  Creates an XImage for the surface.
  *
- *  @param  shimeji_surface_t *
- *     The surface to create an XImage for.
  *  @param  avatar_t *
  *     The shimeji to create an XImage for.
  *  @param  int
@@ -81,42 +76,41 @@ void render_clear( void ) {
  *  @return XImage *
  *     A valid XImage for the shimeji on success, nullptr on failure.
  */
-XImage *create_ximage( shimeji_surface_t *spSurface, avatar_t *spShimeji, int i ) {
-    return XCreateImage( spSurface->apDisplay,
-                         spSurface->aVInfo.visual,
-                         spSurface->aVInfo.depth,
-                         ZPixmap, 0, ( char* )spShimeji->apData[ i ]->apBuf,
+XImage *create_ximage( avatar_t *spShimeji, int i ) {
+    return XCreateImage( gpSurface->apDisplay,
+                         gpSurface->aVInfo.visual,
+                         gpSurface->aVInfo.depth,
+                         ZPixmap, 0, ( char* )spShimeji->aData[ i ]->apBuf,
                          spShimeji->aWidth, spShimeji->aHeight, 32, 0 );
 }
 /*
  *  Creates a Pixmap for the surface.
  *
- *  @param  shimeji_surface_t *
- *    The surface to create a Pixmap for.
  *  @return Pixmap
  *   A valid Pixmap for the surface on success, 0 on failure.
  */
-Pixmap create_pixmap( shimeji_surface_t *spSurface ) {
-    return XCreatePixmap( spSurface->apDisplay, spSurface->aOverlayWin, spSurface->aWidth, spSurface->aHeight, spSurface->aVInfo.depth );
+Pixmap create_pixmap( void ) {
+    return XCreatePixmap( gpSurface->apDisplay, gpSurface->aOverlayWin, gpSurface->aWidth, gpSurface->aHeight, gpSurface->aVInfo.depth );
 }
 /*
  *  Adds a shimeji to the render queue.
  *
- *  @param  shimeji_surface_t *
- *     The surface to add to the render queue.
  *  @param  avatar_t *
  *     The shimeji to add to the render queue.
  */
-void render_add( shimeji_surface_t *spSurface, avatar_t *spShimeji ) {
+void render_add( avatar_t *spShimeji ) {
+#if 0
     int i = 0, j = 0;
-    while( gpAvatars[ i ] != 0 ) {
+    while( gAvatars[ i ] != 0 ) {
         ++i;
     }
-    gpAvatars[ i ] = spShimeji;
-    for ( ; spShimeji->apData[ j ] != 0; ++j );
+    gAvatars[ i ] = spShimeji;
+#endif
+    int i = gAvatars.size() - 1, j = 0;
+    for ( ; spShimeji->aData[ j ] != 0; ++j );
     gpImages[ i ]   = ( XImage** )malloc( sizeof( XImage* ) * ( j + 1 ) );
-    for ( j = 0; spShimeji->apData[ j ] != 0; ++j ) {
-        gpImages[ i ][ j ] = create_ximage( spSurface, gpAvatars[ i ], j );
+    for ( j = 0; spShimeji->aData[ j ] != 0; ++j ) {
+        gpImages[ i ][ j ] = create_ximage( gAvatars[ i ], j );
     }
     gpImages[ i ][ j + 1 ] = 0;
 }
@@ -128,11 +122,11 @@ void render_add( shimeji_surface_t *spSurface, avatar_t *spShimeji ) {
  */
 void render_remove( avatar_t *spShimeji ) {
     int i = 0;
-    while( gpAvatars[ i ] != spShimeji ) {
+    while( gAvatars[ i ] != spShimeji ) {
         ++i;
     }
-    shimeji_free( gpAvatars[ i ] );    
-    gpAvatars[ i ] = 0;
+    shimeji_free( gAvatars[ i ] );    
+    gAvatars[ i ] = 0;
     for ( int j = 0; gpImages[ i ][ j ] != 0; ++j ) {
         XDestroyImage( gpImages[ i ][ j ] );
     }
@@ -141,30 +135,48 @@ void render_remove( avatar_t *spShimeji ) {
 /*
  *  Draws a shimeji.
  *
- *  @param  shimeji_surface_t *
- *     The surface to draw the shimeji on.
  *  @param  avatar_t *
  *     The shimeji to draw.
  */
-void render_draw( shimeji_surface_t *spSurface, avatar_t *spShimeji ) {
+void render_draw( avatar_t *spShimeji ) {
     int i = 0;
-    while( gpAvatars[ i ] != spShimeji ) {
+    while( gAvatars[ i ] != spShimeji ) {
         ++i;
     }
+    if ( !gpImages[ i ] ) {
+        fprintf( stderr, "render_draw( avatar_t* ): gpImages[ %d ] is null\n", i );
+        return;
+    }
     XPutImage( 
-        spSurface->apDisplay, gPixmap, spSurface->aGC, gpImages[ i ][ gpAvatars[ i ]->aCurrentFrame ], 0, 0, 
-        gpAvatars[ i ]->aPos[ 0 ], gpAvatars[ i ]->aPos[ 1 ], 
-        gpAvatars[ i ]->aWidth, gpAvatars[ i ]->aHeight 
+        gpSurface->apDisplay, gPixmap, gpSurface->aGC, gpImages[ i ][ gAvatars[ i ]->aFrame ], 0, 0, 
+        gAvatars[ i ]->aPos[ 0 ], gAvatars[ i ]->aPos[ 1 ], 
+        gAvatars[ i ]->aWidth, gAvatars[ i ]->aHeight 
     );
     XCopyArea( 
-        spSurface->apDisplay, gPixmap, spSurface->aOverlayWin,  spSurface->aGC, 0, 0, 
-        spSurface->aWidth, spSurface->aHeight, 0, 0 
+        gpSurface->apDisplay, gPixmap, gpSurface->aOverlayWin, gpSurface->aGC, 0, 0, 
+        gpSurface->aWidth, gpSurface->aHeight, 0, 0 
     );
     XFillRectangle( 
-        spSurface->apDisplay, gPixmap, spSurface->aGC, 
-        gpAvatars[ i ]->aPos[ 0 ], gpAvatars[ i ]->aPos[ 1 ], 
-        gpAvatars[ i ]->aWidth, gpAvatars[ i ]->aHeight 
+        gpSurface->apDisplay, gPixmap, gpSurface->aGC, 
+        0, 0, 
+        gpSurface->aWidth, gpSurface->aHeight 
     );
+}
+/*
+ *  Sets the image index on a avatar.
+ *
+ *  @param  avatar_t *
+ *     The pointer to the avatar
+ *  @param  u16
+ *     The image index to draw.
+ *  @param  bool
+ *     Should we flip the image? (may be removed later for scaling instead, idk)
+ */
+void render_set_image( avatar_t *spAvatar, u16 sIndex, bool sFlip ) {
+    spAvatar->aFrame = sIndex;
+    if ( sFlip ) {
+        /* Die.  */
+    }
 }
 
 

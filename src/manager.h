@@ -11,6 +11,8 @@
 
 #define SHIMEJI_MAX_COUNT 255
 
+#include <qdatastream.h>
+
 #include "shimeji.h"
 
 extern std::vector< avatar_t* > gAvatars;

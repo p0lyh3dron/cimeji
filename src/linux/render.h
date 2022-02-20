@@ -9,6 +9,8 @@
  */
 #pragma once
 
+#include <qdatastream.h>
+
 #include <cairo/cairo.h>
 #include <cairo/cairo-xlib.h>
 
@@ -37,34 +39,29 @@ void render_clear( void );
 /*
  *  Creates an XImage for the surface.
  *
- *  @param  shimeji_surface_t *
- *     The surface to create an XImage for.
  *  @param  avatar_t *
  *     The shimeji to create an XImage for.
  *  @param  int
  *     The index of the shimeji frame.
+ * 
  *  @return XImage *
  *     A valid XImage for the shimeji on success, nullptr on failure.
  */
-XImage *create_ximage( shimeji_surface_t *spSurface, avatar_t *spShimeji, int i );
+XImage *create_ximage( avatar_t *spShimeji, int i );
 /*
  *  Creates a Pixmap for the surface.
  *
- *  @param  shimeji_surface_t *
- *    The surface to create a Pixmap for.
  *  @return Pixmap
  *   A valid Pixmap for the surface on success, 0 on failure.
  */
-Pixmap create_pixmap( shimeji_surface_t *spSurface );
+Pixmap create_pixmap( void );
 /*
  *  Adds a shimeji to the render queue.
  *
- *  @param  shimeji_surface_t *
- *     The surface to add to the render queue.
  *  @param  avatar_t *
  *     The shimeji to add to the render queue.
  */
-void render_add( shimeji_surface_t *spSurface, avatar_t *spShimeji );
+void render_add( avatar_t *spShimeji );
 /*
  *  Removes a shimeji from the render queue.
  *
@@ -75,12 +72,21 @@ void render_remove( avatar_t *spShimeji );
 /*
  *  Draws a shimeji.
  *
- *  @param  shimeji_surface_t *
- *     The surface to draw the shimeji on.
  *  @param  avatar_t *
  *     The shimeji to draw.
  */
-void render_draw( shimeji_surface_t *spSurface, avatar_t *spShimeji );
+void render_draw( avatar_t *spShimeji );
+/*
+ *  Sets the image index on a avatar.
+ *
+ *  @param  avatar_t *
+ *     The pointer to the avatar
+ *  @param  u16
+ *     The image index to draw.
+ *  @param  bool
+ *     Should we flip the image? (may be removed later for scaling instead, idk)
+ */
+void render_set_image( avatar_t *spAvatar, u16 sIndex, bool sFlip = false );
 
 
 

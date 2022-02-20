@@ -23,6 +23,7 @@ ControlPanel::ControlPanel()
 #endif
 
     setWindowFlags( Qt::Drawer );
+    setAttribute( Qt::WA_QuitOnClose );
 }
 
 ControlPanel::~ControlPanel()
